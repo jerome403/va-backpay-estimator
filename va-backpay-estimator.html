@@ -1,0 +1,2700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VA Disability Backpay Estimator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Merriweather:wght@700;900&display=swap" onerror="">
+<style>
+
+  :root {
+    --navy: #112e51;
+    --navy-light: #1a4480;
+    --blue: #2672de;
+    --blue-light: #4f97e8;
+    --blue-pale: #e8f0fb;
+    --blue-muted: #d4e4f7;
+    --gold: #e8a820;
+    --gold-dark: #c69214;
+    --gold-pale: #fef3cd;
+    --red: #d83933;
+    --red-pale: #fde8e7;
+    --green: #2e8540;
+    --green-pale: #e7f4e9;
+    --gray-50: #fafafa;
+    --gray-100: #f5f6f7;
+    --gray-200: #e6e7e8;
+    --gray-300: #c6c8ca;
+    --gray-400: #a0a2a5;
+    --gray-500: #71767a;
+    --gray-600: #565c65;
+    --gray-700: #3d4551;
+    --gray-900: #1b1b1b;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 3px rgba(17,46,81,0.08);
+    --shadow-md: 0 4px 12px rgba(17,46,81,0.1);
+    --shadow-lg: 0 8px 24px rgba(17,46,81,0.12);
+    --radius: 6px;
+    --radius-lg: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--gray-900);
+    background: var(--gray-100);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══ HEADER ═══ */
+  .site-header {
+    background: var(--navy);
+    color: var(--white);
+  }
+  .header-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-icon {
+    width: 42px; height: 42px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .header-text h1 {
+    font-family: 'Merriweather', serif;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+    line-height: 1.3;
+  }
+  .header-text p {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-top: 1px;
+  }
+
+  /* ═══ DISCLAIMER ═══ */
+  .disclaimer {
+    background: var(--gold-pale);
+    border-bottom: 1px solid #e6d9a8;
+    padding: 12px 24px;
+  }
+  .disclaimer-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #664d03;
+  }
+
+  /* ═══ TABS ═══ */
+  .tab-bar {
+    background: var(--white);
+    border-bottom: 2px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-bar-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    padding: 0 24px;
+  }
+  .tab-btn {
+    padding: 12px 20px;
+    font: 600 14px/1 'Source Sans 3', sans-serif;
+    color: var(--gray-500);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--navy); }
+  .tab-btn.active {
+    color: var(--navy);
+    border-bottom-color: var(--blue);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ═══ MAIN ═══ */
+  .main-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 24px;
+  }
+
+  /* ═══ SECTIONS ═══ */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-head .step {
+    width: 26px; height: 26px;
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .card-head h2 {
+    font-family: 'Merriweather', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .card-body { padding: 20px; }
+
+  /* ═══ FORMS ═══ */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .form-row:last-child { margin-bottom: 0; }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+  .form-group { display: flex; flex-direction: column; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 4px;
+  }
+  label .hint {
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--gray-500);
+    display: block;
+    margin-top: 1px;
+  }
+  input[type="date"], select, input[type="number"] {
+    padding: 9px 10px;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--gray-900);
+    background: var(--white);
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(38,114,222,0.12);
+  }
+  input[type="number"] { max-width: 110px; }
+
+  .check-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  }
+  .check-row input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--blue);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .check-row label { margin-bottom: 0; font-weight: 500; cursor: pointer; font-size: 14px; }
+
+  .dep-box {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 8px;
+  }
+
+  .hidden { display: none !important; }
+
+  .val-msg {
+    background: var(--red-pale);
+    border-left: 4px solid var(--red);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #7a1f1a;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: 12px;
+  }
+  .warn-msg {
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold-dark);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #664d03;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: 12px;
+  }
+
+  /* ═══ STAGED RATINGS ═══ */
+  .stage-list { display: flex; flex-direction: column; gap: 10px; }
+  .stage-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+    background: var(--gray-50);
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+  }
+  @media (max-width: 600px) {
+    .stage-row { grid-template-columns: 1fr 1fr; }
+  }
+  .stage-row .remove-btn {
+    width: 32px; height: 32px;
+    background: none;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--gray-500);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .stage-row .remove-btn:hover {
+    background: var(--red-pale);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .add-stage-btn {
+    background: none;
+    border: 1px dashed var(--gray-300);
+    border-radius: var(--radius);
+    padding: 10px;
+    font: 500 14px/1 'Source Sans 3', sans-serif;
+    color: var(--blue);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .add-stage-btn:hover {
+    border-color: var(--blue);
+    background: var(--blue-pale);
+  }
+
+  /* ═══ BUTTONS ═══ */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .btn {
+    padding: 10px 22px;
+    border-radius: var(--radius);
+    font: 600 15px/1 'Source Sans 3', sans-serif;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--blue); color: var(--white); }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-secondary { background: var(--white); color: var(--gray-700); border-color: var(--gray-300); }
+  .btn-secondary:hover { background: var(--gray-100); border-color: var(--gray-400); }
+  .btn-sm { padding: 7px 14px; font-size: 13px; }
+
+  /* ═══ RESULTS ═══ */
+  .results-wrap {
+    border: 2px solid var(--navy);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .results-top {
+    background: var(--navy);
+    color: var(--white);
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .results-top h2 {
+    font-family: 'Merriweather', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .big-num {
+    font-family: 'Merriweather', serif;
+    font-size: 44px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: -1px;
+  }
+  .results-sub {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+  .results-body { padding: 20px; background: var(--white); }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .s-card {
+    background: var(--blue-pale);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .s-card .sl { font-size: 11px; font-weight: 600; color: var(--navy-light); text-transform: uppercase; letter-spacing: 0.5px; }
+  .s-card .sv { font-size: 18px; font-weight: 700; color: var(--navy); margin-top: 3px; }
+
+  /* ═══ MATH DETAIL ═══ */
+  .math-detail {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--gray-700);
+  }
+  .math-detail strong { color: var(--navy); }
+
+  /* ═══ TABLE ═══ */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bt {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .bt th {
+    background: var(--gray-100);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--gray-600);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid var(--gray-200);
+    white-space: nowrap;
+  }
+  .bt th:last-child, .bt td:last-child { text-align: right; }
+  .bt td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .bt tr:last-child td { border-bottom: none; }
+  .bt .yr-row td {
+    font-weight: 700;
+    background: var(--blue-pale);
+    color: var(--navy);
+  }
+
+  /* ═══ MOBILE CARDS (replaces table on small screens) ═══ */
+  .mobile-breakdown { display: none; }
+  @media (max-width: 640px) {
+    .tbl-wrap { display: none; }
+    .mobile-breakdown { display: block; }
+    .mb-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .mb-card .mb-month { font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .mb-card .mb-row { display: flex; justify-content: space-between; }
+    .mb-card .mb-row span:first-child { color: var(--gray-500); }
+    .mb-card.yr-card {
+      background: var(--blue-pale);
+      border-color: var(--blue-muted);
+      font-weight: 700;
+    }
+  }
+
+  /* ═══ COMBINED RATING CALC ═══ */
+  .cr-header {
+    display: grid;
+    grid-template-columns: 2fr 90px 70px 90px 32px;
+    gap: 8px;
+    padding: 0 4px 8px;
+    border-bottom: 2px solid var(--gray-200);
+    margin-bottom: 8px;
+  }
+  .cr-header span {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.4px; color: var(--gray-500);
+  }
+  .cr-row {
+    display: grid;
+    grid-template-columns: 2fr 90px 70px 90px 32px;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 4px;
+    border-radius: var(--radius);
+    margin-bottom: 4px;
+    transition: background 0.1s;
+  }
+  .cr-row:hover { background: var(--gray-50); }
+  .cr-row.has-whatif { background: var(--gold-pale); }
+  .cr-name {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 7px 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--gray-900);
+    background: var(--white);
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .cr-name:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 2px rgba(38,114,222,0.1); }
+  .cr-name::placeholder { color: var(--gray-400); font-style: italic; }
+  .cr-row select {
+    padding: 7px 4px;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--gray-900);
+    background: var(--white);
+    width: 100%;
+  }
+  .cr-row select:focus { border-color: var(--blue); outline: none; }
+  .cr-row select.cr-wi { border-style: dashed; border-color: var(--gray-300); color: var(--gray-500); }
+  .cr-row select.cr-wi.active { border-style: solid; border-color: var(--gold-dark); color: var(--gray-900); background: var(--gold-pale); }
+  .cr-row .cr-bilat-cb { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; margin: 0 auto; display: block; }
+  .cr-row .remove-btn {
+    width: 28px; height: 28px;
+    background: none; border: 1px solid var(--gray-200);
+    border-radius: var(--radius); cursor: pointer;
+    font-size: 14px; color: var(--gray-400);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .cr-row .remove-btn:hover { background: var(--red-pale); border-color: var(--red); color: var(--red); }
+
+  .cr-bilat-note {
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-muted);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--navy-light);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* Result panel */
+  .cr-result-panel {
+    margin-top: 16px;
+    border: 2px solid var(--navy);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .cr-result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--white);
+  }
+  .cr-result-grid.has-whatif { grid-template-columns: 1fr 1fr 1.4fr; }
+  .cr-rcard {
+    padding: 16px 12px;
+    text-align: center;
+    border-right: 1px solid var(--gray-200);
+  }
+  .cr-rcard:last-child { border-right: none; }
+  .cr-rcard .cr-rlabel {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 4px;
+  }
+  .cr-rcard .cr-rbig {
+    font-family: 'Merriweather', serif;
+    font-size: 36px; font-weight: 900; line-height: 1.1;
+  }
+  .cr-rcard .cr-rsub {
+    font-size: 12px; color: var(--gray-500); margin-top: 2px;
+  }
+  .cr-rcard.cr-current .cr-rbig { color: var(--green); }
+  .cr-rcard.cr-raw .cr-rbig { color: var(--navy); font-size: 28px; }
+  .cr-rcard.cr-whatif {
+    background: var(--gold-pale);
+    border-right: none;
+  }
+  .cr-rcard.cr-whatif .cr-rbig { color: var(--gold-dark); }
+  .cr-rcard .cr-delta {
+    display: inline-block;
+    font-size: 13px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-top: 4px;
+  }
+  .cr-delta.up { background: var(--green-pale); color: var(--green); }
+  .cr-delta.down { background: var(--red-pale); color: var(--red); }
+  .cr-delta.same { background: var(--gray-100); color: var(--gray-500); }
+  .cr-changes {
+    font-size: 12px; color: var(--gray-600); margin-top: 6px; line-height: 1.4;
+  }
+
+  .cr-math {
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--gray-600);
+  }
+  .cr-math strong { color: var(--navy); }
+
+  @media (max-width: 640px) {
+    .cr-header { display: none; }
+    .cr-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 10px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+    }
+    .cr-row:hover { background: var(--gray-50); }
+    .cr-name { grid-column: 1 / -1; }
+    .cr-row .remove-btn { position: absolute; right: 8px; top: 8px; }
+    .cr-row { position: relative; padding-right: 44px; }
+    .cr-result-grid, .cr-result-grid.has-whatif { grid-template-columns: 1fr; }
+    .cr-rcard { border-right: none; border-bottom: 1px solid var(--gray-200); }
+    .cr-rcard:last-child { border-bottom: none; }
+  }
+
+  /* ═══ SMC CALCULATOR ═══ */
+  .smc-section { margin-bottom: 16px; }
+  .smc-section-head {
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    text-transform: uppercase; letter-spacing: 0.3px;
+    margin-bottom: 8px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .smc-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1.2fr 32px;
+    gap: 8px; align-items: center;
+    padding: 6px 4px; margin-bottom: 4px;
+    border-radius: var(--radius);
+  }
+  .smc-row:hover { background: var(--gray-50); }
+  .smc-row input[type="text"] {
+    border: 1px solid var(--gray-200); border-radius: var(--radius);
+    padding: 7px 8px; font-size: 14px; font-family: inherit;
+    color: var(--gray-900); width: 100%;
+  }
+  .smc-row input[type="text"]:focus { border-color: var(--blue); outline: none; }
+  .smc-row input[type="text"]::placeholder { color: var(--gray-400); font-style: italic; }
+  .smc-row select {
+    padding: 7px 4px; border: 2px solid var(--gray-300);
+    border-radius: var(--radius); font-size: 13px;
+    font-family: inherit; color: var(--gray-900); width: 100%;
+  }
+  .smc-bump-row {
+    display: grid;
+    grid-template-columns: 2fr 90px 90px 32px;
+    gap: 8px; align-items: center;
+    padding: 6px 4px; margin-bottom: 4px;
+  }
+  .smc-bump-row:hover { background: var(--gray-50); }
+  .smc-bump-row select.smc-wi { border-style: dashed; border-color: var(--gray-300); color: var(--gray-500); }
+  .smc-bump-row select.smc-wi.active { border-style: solid; border-color: var(--gold-dark); color: var(--gray-900); background: var(--gold-pale); }
+  .smc-k-section { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 12px 14px; }
+  .smc-k-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 14px; }
+  .smc-k-row:last-child { margin-bottom: 0; }
+  .smc-k-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--blue); }
+  .smc-k-row select { max-width: 220px; padding: 5px 6px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 13px; }
+  .smc-k-total { font-size: 13px; color: var(--navy); font-weight: 600; margin-top: 8px; }
+  .smc-combined-note {
+    background: var(--blue-pale); border: 1px solid var(--blue-muted);
+    border-radius: var(--radius); padding: 8px 12px;
+    font-size: 13px; color: var(--navy-light); margin-top: 8px;
+  }
+
+  .smc-result-panel {
+    margin-top: 16px; border: 2px solid var(--navy);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  .smc-result-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    background: var(--white);
+  }
+  .smc-result-grid.has-whatif { grid-template-columns: 1fr 1fr 1fr 1.4fr; }
+  .smc-rcard {
+    padding: 16px 12px; text-align: center;
+    border-right: 1px solid var(--gray-200);
+  }
+  .smc-rcard:last-child { border-right: none; }
+  .smc-rcard .smc-rlabel {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 4px;
+  }
+  .smc-rcard .smc-rbig {
+    font-family: 'Merriweather', serif;
+    font-size: 28px; font-weight: 900; line-height: 1.1;
+  }
+  .smc-rcard .smc-rsub { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  .smc-rcard.smc-base .smc-rbig { color: var(--navy); }
+  .smc-rcard.smc-final .smc-rbig { color: var(--green); }
+  .smc-rcard.smc-pay .smc-rbig { color: var(--gold-dark); font-size: 24px; }
+  .smc-rcard.smc-wi-card { background: var(--gold-pale); }
+  .smc-rcard.smc-wi-card .smc-rbig { color: var(--gold-dark); }
+  .smc-path {
+    background: var(--gray-50); border-top: 1px solid var(--gray-200);
+    padding: 12px 16px; font-size: 12px; line-height: 1.7; color: var(--gray-600);
+  }
+  .smc-path strong { color: var(--navy); }
+  .smc-path .smc-arrow { color: var(--blue); font-weight: 700; }
+  .smc-dep-inline {
+    background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 12px 14px; margin-top: 12px;
+  }
+  .smc-dep-inline .form-row { margin-bottom: 10px; }
+
+  @media (max-width: 640px) {
+    .smc-row { grid-template-columns: 1fr; gap: 6px; padding: 10px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); margin-bottom: 8px; }
+    .smc-bump-row { grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); margin-bottom: 8px; }
+    .smc-result-grid, .smc-result-grid.has-whatif { grid-template-columns: 1fr; }
+    .smc-rcard { border-right: none; border-bottom: 1px solid var(--gray-200); }
+    .smc-rcard:last-child { border-bottom: none; }
+  }
+
+  /* ═══ WHAT-IF ═══ */
+  .wi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  @media (max-width: 600px) { .wi-grid { grid-template-columns: 1fr; } }
+  .wi-col {
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .wi-col.highlight { border-color: var(--gold); }
+  .wi-head {
+    padding: 12px 16px;
+    background: var(--gray-100);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--navy);
+    text-align: center;
+  }
+  .wi-col.highlight .wi-head { background: var(--gold-pale); }
+  .wi-body { padding: 16px; text-align: center; }
+  .wi-body .wi-amt {
+    font-family: 'Merriweather', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--navy);
+  }
+  .wi-body .wi-diff {
+    font-size: 14px;
+    color: var(--green);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .wi-body .wi-months { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+
+  /* ═══ COLLAPSIBLE ═══ */
+  .collapse-btn {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer; user-select: none;
+    border: none; background: none; width: 100%; font: inherit; text-align: left;
+  }
+  .collapse-btn:hover { background: var(--gray-50); }
+  .collapse-btn h2 {
+    font-family: 'Merriweather', serif;
+    font-size: 16px; font-weight: 700; color: var(--navy);
+  }
+  .caret {
+    width: 20px; height: 20px;
+    transition: transform 0.2s;
+    color: var(--gray-400);
+  }
+  .caret.open { transform: rotate(180deg); }
+  .collapse-body {
+    padding: 0 20px 20px;
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.7;
+  }
+  .collapse-body p { margin-bottom: 10px; }
+  .collapse-body a { color: var(--blue); }
+
+  /* ═══ FOOTER ═══ */
+  .site-footer {
+    text-align: center;
+    padding: 20px 24px;
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+  .site-footer a { color: var(--blue); }
+
+  /* ═══ PRINT ═══ */
+  @media print {
+    body { background: white; font-size: 11pt; }
+    .site-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .tab-bar, .btn-row, .disclaimer, .site-footer, #inputArea, #tabCombined, #tabWhatIf { display: none !important; }
+    .tab-panel { display: block !important; }
+    .results-wrap { break-inside: avoid; }
+    .results-top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-icon">★</div>
+    <div class="header-text">
+      <h1>VA Disability Backpay Estimator</h1>
+      <p>Estimate retroactive compensation · Official VA rates 2020–2026</p>
+    </div>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <div class="disclaimer-inner">
+    <strong>Estimate only.</strong> Actual backpay may differ based on your circumstances. Contact VA at 1-800-827-1000 or consult an accredited VSO or attorney for official calculations.
+  </div>
+</div>
+
+<nav class="tab-bar" role="tablist">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" data-tab="tabCalc" role="tab">Backpay Calculator</button>
+    <button class="tab-btn" data-tab="tabCombined" role="tab">Combined Rating</button>
+    <button class="tab-btn" data-tab="tabSMC" role="tab">SMC Calculator</button>
+    <button class="tab-btn" data-tab="tabWhatIf" role="tab">What-If Comparison</button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 1: BACKPAY CALCULATOR                           -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tabCalc">
+<div class="main-container" id="inputArea">
+
+  <!-- DATES -->
+  <div class="card">
+    <div class="card-head"><span class="step">1</span><h2>Claim Dates</h2></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="effDate">Effective Date <span class="hint">When benefits should have started</span></label>
+          <input type="date" id="effDate">
+        </div>
+        <div class="form-group">
+          <label for="decDate">Decision / Payment Start Date <span class="hint">When VA approved your claim</span></label>
+          <input type="date" id="decDate">
+        </div>
+      </div>
+      <div id="dateErr" class="val-msg hidden"></div>
+    </div>
+  </div>
+
+  <!-- RATING PERIODS -->
+  <div class="card">
+    <div class="card-head"><span class="step">2</span><h2>Rating Periods</h2></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">
+        Add your previous rating (if any) and all new ratings. For a simple increase, just set one period.
+        For staged ratings over time, add multiple periods with their effective dates.
+      </p>
+      <div class="check-row">
+        <input type="checkbox" id="firstClaim" checked onchange="toggleFirst()">
+        <label for="firstClaim">First VA claim — no previous rating</label>
+      </div>
+      <div id="prevRateWrap" class="hidden" style="margin-bottom:14px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prevRating">Previous Rating</label>
+            <select id="prevRating"><option value="0">0%</option><option value="10">10%</option><option value="20">20%</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="90">90%</option></select>
+          </div>
+        </div>
+      </div>
+
+      <label style="margin-bottom:8px;">New Rating Period(s)</label>
+      <div class="stage-list" id="stageList"></div>
+      <button class="add-stage-btn" onclick="addStage()">+ Add another rating period</button>
+      <div id="ratingErr" class="val-msg hidden" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- DEPENDENTS -->
+  <div class="card">
+    <div class="card-head"><span class="step">3</span><h2>Dependents</h2></div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--gray-500);margin-bottom:8px;">Dependent rates only apply to ratings of 30%+. For 10%–20% the rate is flat.</p>
+      <div class="check-row">
+        <input type="checkbox" id="hasDep" onchange="toggleDep()">
+        <label for="hasDep">I have dependents</label>
+      </div>
+      <div id="depBox" class="dep-box hidden">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hasSpouse">Spouse</label>
+            <select id="hasSpouse" onchange="toggleAA()"><option value="0">No</option><option value="1">Yes</option></select>
+          </div>
+          <div class="form-group hidden" id="aaWrap">
+            <label for="spAA">Spouse receives Aid &amp; Attendance?</label>
+            <select id="spAA"><option value="0">No</option><option value="1">Yes</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="kidsU18">Children under 18</label>
+            <input type="number" id="kidsU18" value="0" min="0" max="10">
+          </div>
+          <div class="form-group">
+            <label for="kids1823">Children 18–23 in school</label>
+            <input type="number" id="kids1823" value="0" min="0" max="10">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="depPar">Dependent parents</label>
+            <select id="depPar"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">Calculate Backpay</button>
+    <button class="btn btn-secondary" onclick="resetAll()">Reset</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="main-container">
+  <div id="results" class="hidden">
+    <div class="results-wrap" id="printArea">
+      <div class="results-top">
+        <h2>Estimated Total Backpay</h2>
+        <div class="big-num" id="totalAmt">$0.00</div>
+        <div class="results-sub" id="totalSub"></div>
+      </div>
+      <div class="results-body">
+        <div class="summary-grid" id="sumGrid"></div>
+        <div class="math-detail" id="mathBox"></div>
+        <h3 style="font-family:'Merriweather',serif;font-size:15px;color:var(--navy);margin-bottom:10px;">Monthly Breakdown</h3>
+        <div class="tbl-wrap">
+          <table class="bt">
+            <thead><tr>
+              <th>Month</th><th>Rating</th><th>Monthly Rate</th><th>Prior Rate</th><th>Difference</th>
+            </tr></thead>
+            <tbody id="tBody"></tbody>
+          </table>
+        </div>
+        <div class="mobile-breakdown" id="mobileBreak"></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px;">
+      <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 2: COMBINED RATING                              -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tabCombined">
+<div class="main-container">
+  <div class="card">
+    <div class="card-head"><h2>VA Combined Disability Rating Calculator</h2></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px;">
+        Enter each service-connected condition. Use the <strong>What-If</strong> column to explore how a rating change would affect your combined result. Check <strong>Bilateral</strong> for paired extremities (both knees, both arms, etc.).
+      </p>
+
+      <div class="cr-header">
+        <span>Condition</span>
+        <span>Rating</span>
+        <span style="text-align:center;">Bilat.</span>
+        <span>What-If</span>
+        <span></span>
+      </div>
+      <div id="crList"></div>
+      <button class="add-stage-btn" onclick="addCR()" style="margin-top:8px;">+ Add condition</button>
+
+      <div id="crBilatNote" class="cr-bilat-note hidden">
+        <strong>Bilateral factor applied:</strong> Bilateral disabilities are combined separately, then 10% of that value is added before combining with non-bilateral disabilities.
+      </div>
+
+      <div id="crResultPanel" class="cr-result-panel hidden">
+        <div id="crResultGrid" class="cr-result-grid">
+          <div class="cr-rcard cr-current">
+            <div class="cr-rlabel">Combined Rating</div>
+            <div class="cr-rbig" id="crRounded">—</div>
+            <div class="cr-rsub">VA rounded</div>
+          </div>
+          <div class="cr-rcard cr-raw">
+            <div class="cr-rlabel">Exact</div>
+            <div class="cr-rbig" id="crExact">—</div>
+            <div class="cr-rsub">Before rounding</div>
+          </div>
+          <div class="cr-rcard cr-whatif hidden" id="crWhatIfCard">
+            <div class="cr-rlabel">What-If Result</div>
+            <div class="cr-rbig" id="crWiRounded">—</div>
+            <div class="cr-rsub" id="crWiExact"></div>
+            <div id="crWiDelta"></div>
+            <div class="cr-changes" id="crWiChanges"></div>
+          </div>
+        </div>
+        <div class="cr-math" id="crMath"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="overflow:hidden;">
+    <button class="collapse-btn" onclick="toggleEl('crInfo','crCaret')">
+      <h2>How Combined Ratings Work</h2>
+      <svg class="caret" id="crCaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <div class="collapse-body hidden" id="crInfo">
+      <p>The VA starts with the highest-rated disability. Then for each subsequent disability, it applies that percentage to the <em>remaining</em> healthy portion. For example, with two 50% disabilities: 50% + (50% × 50%) = 75%, rounded to 80%.</p>
+      <p>The final combined value is rounded to the nearest 10%. This means 75% rounds up to 80%, but 74% rounds down to 70%.</p>
+      <p><strong>Bilateral factor:</strong> When you have disabilities affecting both sides of the body (both arms, both legs, etc.), the VA applies a "bilateral factor." The bilateral disabilities are combined separately, then 10% of that combined value is added. This adjusted value is then combined with your non-bilateral disabilities. For example: left knee 30% + right knee 20% = 44% combined, bilateral factor adds 4.4%, giving 48.4% before combining with other disabilities.</p>
+      <p><strong>0% ratings:</strong> A 0% service-connected rating doesn't change the combined math, but it establishes service connection which can be important for future claims and VA benefits eligibility.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 3: SMC CALCULATOR                               -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tabSMC">
+<div class="main-container">
+  <div class="card">
+    <div class="card-head"><h2>Special Monthly Compensation (SMC) Calculator</h2></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">
+        Determine your SMC level, bump-up path, and monthly payment. Includes Barry v. McDonough multiple bump rules, K stacking, and the full SMC ladder from S through R.2.
+      </p>
+
+      <!-- SECTION 1: SMC-Qualifying Conditions -->
+      <div class="smc-section">
+        <div class="smc-section-head">SMC-Qualifying Conditions</div>
+        <p style="font-size:12px;color:var(--gray-500);margin-bottom:8px;">
+          Enter conditions that qualify for SMC-L through SMC-O (loss of use, blindness, A&A, etc.)
+        </p>
+        <div id="smcCondList"></div>
+        <button class="add-stage-btn" onclick="addSmcCond()" style="margin-top:6px;">+ Add SMC condition</button>
+      </div>
+
+      <!-- SECTION 2: Additional Disabilities for Bumps -->
+      <div class="smc-section">
+        <div class="smc-section-head">Additional Rated Disabilities <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px;color:var(--gray-500);">— for bump-up calculation</span></div>
+        <p style="font-size:12px;color:var(--gray-500);margin-bottom:8px;">
+          Separate service-connected disabilities not used for SMC qualification above. Combined rating determines half-step (50%+) and full-step (100%) bumps.
+        </p>
+        <div id="smcBumpList"></div>
+        <button class="add-stage-btn" onclick="addSmcBump()" style="margin-top:6px;">+ Add disability</button>
+        <div id="smcBumpCombined" class="smc-combined-note hidden"></div>
+      </div>
+
+      <!-- SECTION 3: SMC-K -->
+      <div class="smc-section">
+        <div class="smc-section-head">SMC-K Awards <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px;color:var(--gray-500);">— stacks on top of other SMC levels</span></div>
+        <div class="smc-k-section">
+          <div class="smc-k-row">
+            <input type="checkbox" id="smcK1" onchange="calcSMC()">
+            <label for="smcK1" style="margin:0;font-weight:500;cursor:pointer;">K Award 1</label>
+            <select id="smcK1Type" onchange="calcSMC()" style="margin-left:4px;">
+              <option value="">Select type...</option>
+              <option value="foot">Loss of use — foot</option>
+              <option value="hand">Loss of use — hand</option>
+              <option value="creative">Loss of creative organ</option>
+              <option value="eye1">Blindness — one eye</option>
+              <option value="deaf">Deafness — both ears</option>
+              <option value="buttocks">Loss of both buttocks</option>
+              <option value="breast">Loss of breast tissue (25%+)</option>
+              <option value="aphonia">Complete organic aphonia</option>
+            </select>
+          </div>
+          <div class="smc-k-row">
+            <input type="checkbox" id="smcK2" onchange="calcSMC()">
+            <label for="smcK2" style="margin:0;font-weight:500;cursor:pointer;">K Award 2</label>
+            <select id="smcK2Type" onchange="calcSMC()" style="margin-left:4px;">
+              <option value="">Select type...</option>
+              <option value="foot">Loss of use — foot</option>
+              <option value="hand">Loss of use — hand</option>
+              <option value="creative">Loss of creative organ</option>
+              <option value="eye1">Blindness — one eye</option>
+              <option value="deaf">Deafness — both ears</option>
+              <option value="buttocks">Loss of both buttocks</option>
+              <option value="breast">Loss of breast tissue (25%+)</option>
+              <option value="aphonia">Complete organic aphonia</option>
+            </select>
+          </div>
+          <div class="smc-k-row">
+            <input type="checkbox" id="smcK3" onchange="calcSMC()">
+            <label for="smcK3" style="margin:0;font-weight:500;cursor:pointer;">K Award 3</label>
+            <select id="smcK3Type" onchange="calcSMC()" style="margin-left:4px;">
+              <option value="">Select type...</option>
+              <option value="foot">Loss of use — foot</option>
+              <option value="hand">Loss of use — hand</option>
+              <option value="creative">Loss of creative organ</option>
+              <option value="eye1">Blindness — one eye</option>
+              <option value="deaf">Deafness — both ears</option>
+              <option value="buttocks">Loss of both buttocks</option>
+              <option value="breast">Loss of breast tissue (25%+)</option>
+              <option value="aphonia">Complete organic aphonia</option>
+            </select>
+          </div>
+          <div id="smcKTotal" class="smc-k-total hidden"></div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Additional Options -->
+      <div class="smc-section">
+        <div class="smc-section-head">Additional Factors</div>
+        <div class="check-row">
+          <input type="checkbox" id="smcHousebound" onchange="calcSMC()">
+          <label for="smcHousebound">Factually housebound (confined to dwelling)</label>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="smcNursingAA" onchange="calcSMC()">
+          <label for="smcNursingAA">Requires aid & attendance from licensed healthcare professional (R.2 path)</label>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="smcTBI" onchange="calcSMC()">
+          <label for="smcTBI">TBI residuals requiring A&A / would need institutional care (SMC-T path)</label>
+        </div>
+      </div>
+
+      <!-- Dependents (inline) -->
+      <div class="smc-section">
+        <div class="smc-section-head">Dependents</div>
+        <div class="smc-dep-inline">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="smcSpouse">Spouse</label>
+              <select id="smcSpouse" onchange="toggleSmcAA();calcSMC()"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group hidden" id="smcAAWrap">
+              <label for="smcSpAA">Spouse A&A?</label>
+              <select id="smcSpAA" onchange="calcSMC()"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="smcKidsU18">Children under 18</label>
+              <input type="number" id="smcKidsU18" value="0" min="0" max="10" onchange="calcSMC()">
+            </div>
+            <div class="form-group">
+              <label for="smcKids1823">Children 18–23 in school</label>
+              <input type="number" id="smcKids1823" value="0" min="0" max="10" onchange="calcSMC()">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="smcDepPar">Dependent parents</label>
+              <select id="smcDepPar" onchange="calcSMC()"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
+            </div>
+            <div class="form-group">
+              <label for="smcYear">Rate Year</label>
+              <select id="smcYear" onchange="calcSMC()">
+                <option value="2026" selected>2026</option><option value="2025">2025</option>
+                <option value="2024">2024</option><option value="2023">2023</option>
+                <option value="2022">2022</option><option value="2021">2021</option>
+                <option value="2020">2020</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT PANEL -->
+      <div id="smcResultPanel" class="smc-result-panel hidden">
+        <div id="smcResultGrid" class="smc-result-grid">
+          <div class="smc-rcard smc-base">
+            <div class="smc-rlabel">Base Level</div>
+            <div class="smc-rbig" id="smcBaseLevel">—</div>
+            <div class="smc-rsub" id="smcBaseReason"></div>
+          </div>
+          <div class="smc-rcard smc-final">
+            <div class="smc-rlabel">After Bumps</div>
+            <div class="smc-rbig" id="smcFinalLevel">—</div>
+            <div class="smc-rsub" id="smcFinalReason"></div>
+          </div>
+          <div class="smc-rcard smc-pay">
+            <div class="smc-rlabel">Monthly Payment</div>
+            <div class="smc-rbig" id="smcPayAmt">—</div>
+            <div class="smc-rsub" id="smcPayBreak"></div>
+          </div>
+          <div class="smc-rcard smc-wi-card hidden" id="smcWiCard">
+            <div class="smc-rlabel">What-If Result</div>
+            <div class="smc-rbig" id="smcWiLevel">—</div>
+            <div class="smc-rsub" id="smcWiPay"></div>
+            <div id="smcWiDelta" style="margin-top:4px;"></div>
+            <div id="smcWiChanges" style="font-size:12px;color:var(--gray-600);margin-top:4px;"></div>
+          </div>
+        </div>
+        <div class="smc-path" id="smcPath"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMC BACKPAY ESTIMATOR -->
+  <div class="card">
+    <div class="card-head"><h2>SMC Backpay &amp; Representative Fee</h2></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px;">
+        Estimate retroactive compensation when transitioning from a prior rating/level to the SMC level determined above. The representative fee is calculated on the backpay amount.
+      </p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="smcBpEffDate">Effective Date <span class="hint">When A&A / SMC entitlement arose</span></label>
+          <input type="date" id="smcBpEffDate">
+        </div>
+        <div class="form-group">
+          <label for="smcBpDecDate">Decision Date <span class="hint">When VA approved the SMC award</span></label>
+          <input type="date" id="smcBpDecDate">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="smcBpPriorType">Prior Compensation Level</label>
+          <select id="smcBpPriorType" onchange="toggleSmcBpPrior()">
+            <option value="rating">Standard VA Rating (10%–100%)</option>
+            <option value="smc">SMC Level</option>
+          </select>
+        </div>
+        <div class="form-group" id="smcBpPriorRatingWrap">
+          <label for="smcBpPriorRating">Prior Rating</label>
+          <select id="smcBpPriorRating">
+            <option value="0">0% (no prior comp)</option>
+            <option value="10">10%</option><option value="20">20%</option>
+            <option value="30">30%</option><option value="40">40%</option>
+            <option value="50">50%</option><option value="60">60%</option>
+            <option value="70">70%</option><option value="80">80%</option>
+            <option value="90">90%</option><option value="100" selected>100%</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="smcBpPriorSmcWrap">
+          <label for="smcBpPriorSmc">Prior SMC Level</label>
+          <select id="smcBpPriorSmc">
+            <option value="S">SMC-S</option>
+            <option value="L">SMC-L</option><option value="Lh">SMC-L&frac12;</option>
+            <option value="M">SMC-M</option><option value="Mh">SMC-M&frac12;</option>
+            <option value="N">SMC-N</option><option value="Nh">SMC-N&frac12;</option>
+            <option value="O">SMC-O</option>
+            <option value="R1">SMC-R.1</option><option value="R2">SMC-R.2</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="smcBpRepFee">Representative Fee <span class="hint">% of backpay owed to rep</span></label>
+          <select id="smcBpRepFee">
+            <option value="0">No representative</option>
+            <option value="20" selected>20% (standard)</option>
+            <option value="25">25%</option>
+            <option value="33.33">33.33% (attorney max)</option>
+            <option value="custom">Custom %</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="smcBpCustomFeeWrap">
+          <label for="smcBpCustomFee">Custom Fee %</label>
+          <input type="number" id="smcBpCustomFee" value="20" min="0" max="100" step="0.1">
+        </div>
+      </div>
+
+      <div id="smcBpErr" class="val-msg hidden"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcSmcBackpay()">Calculate SMC Backpay</button>
+      </div>
+
+      <!-- Results -->
+      <div id="smcBpResults" class="hidden" style="margin-top:16px;">
+        <div class="results-wrap">
+          <div class="results-top">
+            <h2>Estimated SMC Backpay</h2>
+            <div class="big-num" id="smcBpTotal">$0.00</div>
+            <div class="results-sub" id="smcBpSub"></div>
+          </div>
+          <div class="results-body">
+            <div class="summary-grid" id="smcBpSumGrid"></div>
+
+            <!-- Rep fee breakdown -->
+            <div id="smcBpRepBox" class="hidden" style="margin-bottom:16px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="s-card" style="background:var(--gold-pale);">
+                  <div class="sl" style="color:var(--gold-dark);">Representative Fee</div>
+                  <div class="sv" id="smcBpRepAmt" style="color:var(--gold-dark);font-size:22px;">$0.00</div>
+                  <div style="font-size:11px;color:var(--gray-500);margin-top:2px;" id="smcBpRepPct"></div>
+                </div>
+                <div class="s-card" style="background:var(--green-pale);">
+                  <div class="sl" style="color:var(--green);">Veteran Receives</div>
+                  <div class="sv" id="smcBpVetAmt" style="color:var(--green);font-size:22px;">$0.00</div>
+                  <div style="font-size:11px;color:var(--gray-500);margin-top:2px;">After rep fee</div>
+                </div>
+              </div>
+            </div>
+
+            <h3 style="font-family:'Merriweather',serif;font-size:15px;color:var(--navy);margin-bottom:10px;">Monthly Breakdown</h3>
+            <div class="tbl-wrap">
+              <table class="bt">
+                <thead><tr>
+                  <th>Month</th><th>New Level</th><th>New Rate</th><th>Prior Rate</th><th>Difference</th>
+                </tr></thead>
+                <tbody id="smcBpTBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-bottom:12px;">
+          <button class="btn btn-secondary btn-sm" onclick="exportSmcCSV()">📥 Export CSV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMC Reference Guide -->
+  <div class="card" style="overflow:hidden;">
+    <button class="collapse-btn" onclick="toggleEl('smcRef','smcRefCaret')">
+      <h2>SMC Level Reference Guide</h2>
+      <svg class="caret" id="smcRefCaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <div class="collapse-body hidden" id="smcRef">
+      <p><strong>SMC-K</strong> ($139.87/mo in 2026) — Loss of use of a creative organ, hand, foot, eye, or both ears. Stacks on top of any other level (max 3 awards).</p>
+      <p><strong>SMC-S</strong> — Housebound. Either one disability at 100% plus separate disabilities at 60%+, or factually confined to dwelling.</p>
+      <p><strong>SMC-L</strong> — Aid & Attendance or bilateral loss. Loss of both feet, one hand + one foot, bilateral blindness (5/200 or less), permanently bedridden, or needing regular A&A.</p>
+      <p><strong>SMC-M</strong> — Loss of both hands, both legs above knee, one arm + one leg (preventing prosthetic use), or bilateral blindness with only light perception.</p>
+      <p><strong>SMC-N</strong> — Both arms above elbow, both legs near hip, or anatomical loss of both eyes.</p>
+      <p><strong>SMC-O</strong> — Both arms near shoulder, two separate conditions each qualifying for L through N, or paraplegia with sphincter loss. Also reached via bump-ups capped at O.</p>
+      <p><strong>SMC-R.1</strong> — At O level and needs regular aid & attendance (non-professional care).</p>
+      <p><strong>SMC-R.2</strong> — At O level and needs A&A from a licensed healthcare professional.</p>
+      <p><strong>SMC-T</strong> — TBI requiring A&A, would need institutional care, not eligible for R.2. Same rate as R.2.</p>
+      <p><strong>Bump-ups (38 CFR 3.350):</strong> Additional separate disabilities combining to 50%+ = half-step bump. A single separate 100% disability = full-step bump. Per <em>Barry v. McDonough</em> (2024), multiple bumps are allowed, capped at SMC-O.</p>
+      <p><strong>Half-step levels</strong> (L½, M½, N½) are intermediate rates between full levels, reached via bump-up rules.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- TAB 4: WHAT-IF                                      -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tabWhatIf">
+<div class="main-container">
+  <div class="card">
+    <div class="card-head"><h2>What-If Comparison</h2></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">
+        Compare two rating scenarios side-by-side to see the difference in total monthly compensation over a date range. Uses dependent info from the Backpay Calculator tab if set.
+      </p>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="wiEffDate">Start Date <span class="hint">Beginning of comparison period</span></label>
+          <input type="date" id="wiEffDate">
+        </div>
+        <div class="form-group">
+          <label for="wiEndDate">End Date <span class="hint">End of comparison period</span></label>
+          <input type="date" id="wiEndDate">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="wiRateA">Scenario A — Rating</label>
+          <select id="wiRateA"><option value="10">10%</option><option value="20">20%</option><option value="30">30%</option><option value="40">40%</option><option value="50" selected>50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="90">90%</option><option value="100">100%</option></select>
+        </div>
+        <div class="form-group">
+          <label for="wiRateB">Scenario B — Rating</label>
+          <select id="wiRateB"><option value="10">10%</option><option value="20">20%</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70" selected>70%</option><option value="80">80%</option><option value="90">90%</option><option value="100">100%</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="runWhatIf()">Compare</button>
+      <div id="wiErr" class="val-msg hidden"></div>
+      <div id="wiResults" class="hidden">
+        <div class="wi-grid" id="wiGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- HOW IT WORKS                                        -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="main-container">
+  <div class="card" style="overflow:hidden;">
+    <button class="collapse-btn" onclick="toggleEl('howBody','howCaret')">
+      <h2>How VA Backpay Works</h2>
+      <svg class="caret" id="howCaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <div class="collapse-body hidden" id="howBody">
+      <p><strong>Effective date:</strong> When VA determines your disability began or when you filed your claim. This is the start of your backpay period.</p>
+      <p><strong>Calculation method:</strong> VA pays the monthly rate for each month between effective date and decision. If your rating increased, you receive the difference between old and new rates. Rates change annually on December 1st due to COLA adjustments.</p>
+      <p><strong>Partial months:</strong> The month after the effective date is the first payment month. Partial months are generally counted as full months.</p>
+      <p><strong>Staged ratings:</strong> Some claims result in different ratings for different time periods. The VA assigns the rating that best reflects your disability level at each point in time.</p>
+      <p><strong>Payment:</strong> Backpay is usually a lump sum shortly after your claim decision.</p>
+      <p>For more info: <a href="https://www.va.gov/disability/compensation-rates/veteran-rates/" target="_blank" rel="noopener">VA.gov Compensation Rates</a> · <a href="https://www.va.gov/disability/effective-date/" target="_blank" rel="noopener">Effective Dates</a></p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  Data from official <a href="https://www.va.gov/disability/compensation-rates/veteran-rates/" target="_blank" rel="noopener">VA.gov</a> rate tables (2020–2026). Not affiliated with the U.S. Department of Veterans Affairs.<br>
+  Rates last verified: March 2026
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// OFFICIAL VA COMPENSATION RATES 2020–2026
+// Each year effective Dec 1 of prior year through Nov 30
+// ═══════════════════════════════════════════════════════════
+const R = {
+  2020: {
+    va:{10:142.29,20:281.27,30:435.69,40:627.61,50:893.43,60:1131.68,70:1426.17,80:1657.80,90:1862.96,100:3106.04},
+    sp:{30:486.69,40:696.61,50:979.43,60:1234.68,70:1547.17,80:1795.80,90:2017.96,100:3279.22},
+    sp1p:{30:527.69,40:751.61,50:1048.43,60:1317.68,70:1644.17,80:1906.80,90:2142.96,100:3418.20},
+    sp2p:{30:568.69,40:806.61,50:1117.43,60:1400.68,70:1741.17,80:2017.80,90:2267.96,100:3557.18},
+    p1:{30:476.69,40:682.61,50:962.43,60:1214.68,70:1523.17,80:1768.80,90:1987.96,100:3245.02},
+    p2:{30:517.69,40:737.61,50:1031.43,60:1297.68,70:1620.17,80:1879.80,90:2112.96,100:3384.00},
+    c1:{30:469.69,40:673.61,50:950.43,60:1200.68,70:1507.17,80:1749.80,90:1966.96,100:3221.85},
+    c1sp:{30:525.69,40:747.61,50:1043.43,60:1311.68,70:1636.17,80:1897.80,90:2132.96,100:3406.04},
+    c1sp1p:{30:566.69,40:802.61,50:1112.43,60:1394.68,70:1733.17,80:2008.80,90:2257.96,100:3545.02},
+    c1sp2p:{30:607.69,40:857.61,50:1181.43,60:1477.68,70:1830.17,80:2119.80,90:2382.96,100:3684.00},
+    c1p1:{30:510.69,40:728.61,50:1019.43,60:1283.68,70:1604.17,80:1860.80,90:2091.96,100:3360.83},
+    c1p2:{30:551.69,40:783.61,50:1088.43,60:1366.68,70:1701.17,80:1971.80,90:2216.96,100:3499.81},
+    xc:{30:25,40:34,50:43,60:51,70:60,80:68,90:77,100:86.05},
+    xs:{30:83,40:111,50:138,60:166,70:194,80:222,90:250,100:277.96},
+    aa:{30:48,40:63,50:80,60:96,70:111,80:127,90:143,100:158.82}
+  },
+  2021: {
+    va:{10:144.14,20:284.93,30:441.35,40:635.77,50:905.04,60:1146.39,70:1444.71,80:1679.35,90:1887.18,100:3146.42},
+    sp:{30:493.35,40:705.77,50:992.04,60:1251.39,70:1566.71,80:1819.35,90:2044.18,100:3321.85},
+    sp1p:{30:535.35,40:761.77,50:1062.04,60:1335.39,70:1664.71,80:1931.35,90:2170.18,100:3462.64},
+    sp2p:{30:577.35,40:817.77,50:1132.04,60:1419.39,70:1762.71,80:2043.45,90:2296.18,100:3603.43},
+    p1:{30:483.35,40:691.77,50:975.04,60:1230.39,70:1542.71,80:1791.35,90:2013.18,100:3287.21},
+    p2:{30:525.35,40:747.77,50:1045.04,60:1314.39,70:1640.71,80:1903.35,90:2139.18,100:3428.00},
+    c1:{30:476.35,40:681.77,50:963.04,60:1216.39,70:1526.71,80:1772.35,90:1992.18,100:3263.74},
+    c1sp:{30:532.35,40:756.77,50:1056.04,60:1328.39,70:1656.71,80:1922.35,90:2160.18,100:3450.32},
+    c1sp1p:{30:574.35,40:812.77,50:1126.04,60:1412.39,70:1754.71,80:2034.35,90:2286.18,100:3591.11},
+    c1sp2p:{30:616.35,40:868.77,50:1196.04,60:1496.39,70:1852.71,80:2146.35,90:2412.18,100:3731.90},
+    c1p1:{30:518.35,40:737.77,50:1033.04,60:1300.39,70:1624.71,80:1884.35,90:2118.18,100:3404.53},
+    c1p2:{30:560.35,40:793.77,50:1103.04,60:1384.39,70:1722.71,80:1996.35,90:2244.18,100:3545.32},
+    xc:{30:26,40:34,50:43,60:52,70:61,80:69,90:78,100:87.17},
+    xs:{30:84,40:112,50:140,60:168,70:197,80:225,90:253,100:281.57},
+    aa:{30:48,40:64,50:81,60:96,70:113,80:129,90:145,100:160.89}
+  },
+  2022: {
+    va:{10:152.64,20:301.74,30:467.39,40:673.28,50:958.44,60:1214.03,70:1529.95,80:1778.43,90:1998.52,100:3332.06},
+    sp:{30:522.39,40:747.28,50:1050.44,60:1325.03,70:1659.95,80:1926.43,90:2165.52,100:3517.84},
+    sp1p:{30:566.39,40:806.28,50:1124.44,60:1414.03,70:1763.95,80:2045.43,90:2299.52,100:3666.94},
+    sp2p:{30:610.39,40:865.28,50:1198.44,60:1503.03,70:1867.95,80:2164.43,90:2433.52,100:3816.04},
+    p1:{30:511.39,40:732.28,50:1032.44,60:1303.03,70:1633.95,80:1897.43,90:2132.52,100:3481.16},
+    p2:{30:555.39,40:791.28,50:1106.44,60:1392.03,70:1737.95,80:2016.43,90:2266.52,100:3630.26},
+    c1:{30:504.39,40:722.28,50:1020.44,60:1288.03,70:1615.95,80:1877.43,90:2109.52,100:3456.30},
+    c1sp:{30:563.39,40:801.28,50:1118.44,60:1407.03,70:1754.95,80:2035.43,90:2287.52,100:3653.89},
+    c1sp1p:{30:607.39,40:860.28,50:1192.44,60:1496.03,70:1858.95,80:2154.43,90:2421.52,100:3802.99},
+    c1sp2p:{30:651.39,40:919.28,50:1266.44,60:1585.03,70:1962.95,80:2273.43,90:2555.52,100:3952.09},
+    c1p1:{30:548.39,40:781.28,50:1094.44,60:1377.03,70:1719.95,80:1996.43,90:2243.52,100:3605.40},
+    c1p2:{30:592.39,40:840.28,50:1168.44,60:1466.03,70:1823.95,80:2115.43,90:2377.52,100:3754.50},
+    xc:{30:27,40:36,50:46,60:55,70:64,80:73,90:83,100:92.31},
+    xs:{30:89,40:119,50:149,60:178,70:208,80:238,90:268,100:298.18},
+    aa:{30:51,40:68,50:86,60:102,70:119,80:136,90:153,100:170.38}
+  },
+  2023: {
+    va:{10:165.92,20:327.99,30:508.05,40:731.86,50:1041.82,60:1319.65,70:1663.06,80:1933.15,90:2172.39,100:3621.95},
+    sp:{30:568.05,40:811.86,50:1141.82,60:1440.65,70:1804.06,80:2094.15,90:2353.39,100:3823.89},
+    sp1p:{30:616.05,40:875.86,50:1222.82,60:1537.65,70:1917.06,80:2223.15,90:2498.39,100:3985.96},
+    sp2p:{30:664.05,40:939.86,50:1303.82,60:1634.65,70:2030.06,80:2353.15,90:2643.39,100:4148.03},
+    p1:{30:556.05,40:795.86,50:1122.82,60:1416.65,70:1776.06,80:2062.15,90:2317.39,100:3784.02},
+    p2:{30:604.05,40:859.86,50:1203.82,60:1513.65,70:1889.06,80:2191.15,90:2462.39,100:3946.09},
+    c1:{30:548.05,40:785.86,50:1108.82,60:1400.65,70:1757.06,80:2041.15,90:2293.39,100:3757.00},
+    c1sp:{30:612.05,40:870.86,50:1215.82,60:1528.65,70:1907.06,80:2212.15,90:2486.39,100:3971.78},
+    c1sp1p:{30:660.05,40:934.86,50:1296.82,60:1625.65,70:2020.06,80:2341.15,90:2631.39,100:4133.85},
+    c1sp2p:{30:708.05,40:998.86,50:1377.82,60:1722.65,70:2133.06,80:2470.15,90:2776.39,100:4295.92},
+    c1p1:{30:596.05,40:849.86,50:1189.82,60:1497.65,70:1870.06,80:2170.15,90:2438.39,100:3919.07},
+    c1p2:{30:644.05,40:913.86,50:1270.82,60:1594.65,70:1983.06,80:2299.15,90:2583.39,100:4081.14},
+    xc:{30:30,40:40,50:50,60:60,70:70,80:80,90:90,100:100.34},
+    xs:{30:97,40:129,50:162,60:194,70:226,80:259,90:291,100:324.12},
+    aa:{30:56,40:74,50:93,60:111,70:130,80:148,90:167,100:185.21}
+  },
+  2024: {
+    va:{10:171.23,20:338.49,30:524.31,40:755.28,50:1075.16,60:1361.88,70:1716.28,80:1995.01,90:2241.91,100:3737.85},
+    sp:{30:586.31,40:838.28,50:1179.16,60:1486.88,70:1861.28,80:2161.01,90:2428.91,100:3946.25},
+    sp1p:{30:636.31,40:904.28,50:1262.16,60:1586.88,70:1978.28,80:2294.01,90:2578.91,100:4113.51},
+    sp2p:{30:686.31,40:970.28,50:1345.16,60:1686.88,70:2095.28,80:2427.01,90:2728.91,100:4280.77},
+    p1:{30:574.31,40:821.28,50:1158.16,60:1461.88,70:1833.28,80:2128.01,90:2391.91,100:3905.11},
+    p2:{30:624.31,40:887.28,50:1241.16,60:1561.88,70:1950.28,80:2261.01,90:2541.91,100:4072.37},
+    c1:{30:565.31,40:810.28,50:1144.16,60:1444.88,70:1813.28,80:2106.01,90:2366.91,100:3877.22},
+    c1sp:{30:632.31,40:899.28,50:1255.16,60:1577.88,70:1968.28,80:2283.01,90:2565.91,100:4098.87},
+    c1sp1p:{30:682.31,40:965.28,50:1338.16,60:1677.88,70:2085.28,80:2416.01,90:2715.91,100:4266.13},
+    c1sp2p:{30:732.31,40:1031.28,50:1421.16,60:1777.88,70:2202.28,80:2549.01,90:2865.91,100:4433.39},
+    c1p1:{30:615.31,40:876.28,50:1227.16,60:1544.88,70:1930.28,80:2239.01,90:2516.91,100:4044.48},
+    c1p2:{30:665.31,40:942.28,50:1310.16,60:1644.88,70:2047.28,80:2372.01,90:2666.91,100:4211.74},
+    xc:{30:31,40:41,50:51,60:62,70:72,80:82,90:93,100:103.55},
+    xs:{30:100,40:133,50:167,60:200,70:234,80:267,90:301,100:334.49},
+    aa:{30:57,40:76,50:95,60:114,70:134,80:153,90:172,100:191.14}
+  },
+  2025: {
+    va:{10:175.51,20:346.95,30:537.42,40:774.16,50:1102.04,60:1395.93,70:1759.19,80:2044.89,90:2297.96,100:3831.30},
+    sp:{30:601.42,40:859.16,50:1208.04,60:1523.93,70:1908.19,80:2214.89,90:2489.96,100:4044.91},
+    sp1p:{30:652.42,40:927.16,50:1293.04,60:1625.93,70:2028.19,80:2351.89,90:2643.96,100:4216.35},
+    sp2p:{30:703.42,40:995.16,50:1378.04,60:1727.93,70:2148.19,80:2488.89,90:2797.96,100:4387.79},
+    p1:{30:588.42,40:842.16,50:1187.04,60:1497.93,70:1879.19,80:2181.89,90:2451.96,100:4002.74},
+    p2:{30:639.42,40:910.16,50:1272.04,60:1599.93,70:1999.19,80:2318.89,90:2605.96,100:4174.18},
+    c1:{30:579.42,40:831.16,50:1173.04,60:1480.93,70:1858.19,80:2158.89,90:2425.96,100:3974.15},
+    c1sp:{30:648.42,40:922.16,50:1287.04,60:1617.93,70:2018.19,80:2340.89,90:2630.96,100:4201.35},
+    c1sp1p:{30:699.42,40:990.16,50:1372.04,60:1719.93,70:2138.19,80:2477.89,90:2784.96,100:4372.79},
+    c1sp2p:{30:750.42,40:1058.16,50:1457.04,60:1821.93,70:2258.19,80:2614.89,90:2938.96,100:4544.23},
+    c1p1:{30:630.42,40:899.16,50:1258.04,60:1582.93,70:1978.19,80:2295.89,90:2579.96,100:4145.59},
+    c1p2:{30:681.42,40:967.16,50:1343.04,60:1684.93,70:2098.19,80:2432.89,90:2733.96,100:4317.03},
+    xc:{30:31,40:42,50:53,60:63,70:74,80:84,90:95,100:106.14},
+    xs:{30:102,40:137,50:171,60:205,70:239,80:274,90:308,100:342.85},
+    aa:{30:58,40:78,50:98,60:117,70:137,80:157,90:176,100:195.92}
+  },
+  2026: {
+    va:{10:180.42,20:356.66,30:552.47,40:795.84,50:1132.90,60:1435.02,70:1808.45,80:2102.15,90:2362.30,100:3938.58},
+    sp:{30:617.47,40:882.84,50:1241.90,60:1566.02,70:1961.45,80:2277.15,90:2559.30,100:4158.17},
+    sp1p:{30:669.47,40:952.84,50:1329.90,60:1671.02,70:2084.45,80:2417.15,90:2717.30,100:4334.41},
+    sp2p:{30:721.47,40:1022.84,50:1417.90,60:1776.02,70:2207.45,80:2557.15,90:2875.30,100:4510.65},
+    p1:{30:604.47,40:865.84,50:1220.90,60:1540.02,70:1931.45,80:2242.15,90:2520.30,100:4114.82},
+    p2:{30:656.47,40:935.84,50:1308.90,60:1645.02,70:2054.45,80:2382.15,90:2678.30,100:4291.06},
+    c1:{30:596.47,40:853.84,50:1205.90,60:1523.02,70:1910.45,80:2219.15,90:2494.30,100:4085.43},
+    c1sp:{30:666.47,40:947.84,50:1322.90,60:1663.02,70:2074.45,80:2406.15,90:2704.30,100:4318.99},
+    c1sp1p:{30:718.47,40:1017.84,50:1410.90,60:1768.02,70:2197.45,80:2546.15,90:2862.30,100:4495.23},
+    c1sp2p:{30:770.47,40:1087.84,50:1498.90,60:1873.02,70:2320.45,80:2686.15,90:3020.30,100:4671.47},
+    c1p1:{30:648.47,40:923.84,50:1293.90,60:1628.02,70:2033.45,80:2359.15,90:2652.30,100:4261.67},
+    c1p2:{30:700.47,40:993.84,50:1381.90,60:1733.02,70:2156.45,80:2499.15,90:2810.30,100:4437.91},
+    xc:{30:32,40:43,50:54,60:65,70:76,80:87,90:98,100:109.11},
+    xs:{30:105,40:140,50:176,60:211,70:246,80:281,90:317,100:352.45},
+    aa:{30:61,40:81,50:101,60:121,70:141,80:161,90:181,100:201.41}
+  }
+};
+
+// ═══ SMC RATES (veteran-alone base rates) ═══
+// Dependent rates derived at runtime: smcVaRate + (R[yr].depKey[100] - R[yr].va[100])
+// xc/xs/aa per-child and spouse A&A surcharges are same as regular comp at 100%
+const SMC_R = {
+  2020:{K:110.31,S:3476.65,L:3864.90,Lh:4064.70,M:4265.31,Mh:4558.37,N:4852.09,Nh:5137.51,O:5423.45,R1:7749.68,R2:8889.08},
+  2021:{K:111.74,S:3521.85,L:3915.14,Lh:4117.54,M:4320.76,Mh:4617.63,N:4915.17,Nh:5204.30,O:5493.95,R1:7850.43,R2:9004.64},
+  2022:{K:118.33,S:3729.64,L:4146.13,Lh:4360.47,M:4575.68,Mh:4890.07,N:5205.17,Nh:5511.35,O:5818.09,R1:8313.61,R2:9535.91},
+  2023:{K:128.62,S:4054.12,L:4506.84,Lh:4739.83,M:4973.76,Mh:5315.51,N:5658.02,Nh:5990.84,O:6324.26,R1:9036.89,R2:10365.53},
+  2024:{K:132.74,S:4183.85,L:4651.06,Lh:4891.50,M:5132.92,Mh:5485.61,N:5839.08,Nh:6182.55,O:6526.64,R1:9326.07,R2:10697.23},
+  2025:{K:136.06,S:4288.45,L:4767.34,Lh:5014.00,M:5261.24,Mh:5623.00,N:5985.06,Nh:6337.00,O:6689.81,R1:9559.22,R2:10964.66},
+  2026:{K:139.87,S:4408.53,L:4900.83,Lh:5154.00,M:5408.55,Mh:5780.00,N:6152.64,Nh:6514.00,O:6877.12,R1:9826.88,R2:11271.67}
+};
+
+// ═══ RATE LOOKUP ═══
+function rateYr(y,m){ return m>=11 ? y+1 : y; } // m is 0-indexed; Dec=11→next year
+function clampYr(ry){ return Math.max(2020, Math.min(2026, ry)); }
+
+// FIX 1: Only use c1 tables when there is at least one child under 18.
+// School-age children (18-23) are always added via xs surcharges, never as the
+// base child in c1 tables.
+function depKey(rating, sp, kU, kS, par) {
+  const r = +rating;
+  if(r < 30) return 'va';
+  if(kU > 0){
+    if(sp){ if(par===2) return 'c1sp2p'; if(par===1) return 'c1sp1p'; return 'c1sp'; }
+    else { if(par===2) return 'c1p2'; if(par===1) return 'c1p1'; return 'c1'; }
+  } else {
+    if(sp){ if(par===2) return 'sp2p'; if(par===1) return 'sp1p'; return 'sp'; }
+    else { if(par===2) return 'p2'; if(par===1) return 'p1'; return 'va'; }
+  }
+}
+
+// FIX 2: Extra children surcharges — the c1 base table already includes one
+// under-18 child. Additional under-18 children add xc each. ALL school-age
+// children add xs each (they are never the "base" child).
+function mRate(yr, rating, sp, kU, kS, par, aaFlag) {
+  const r = +rating;
+  const d = R[yr]; if(!d) return 0;
+  const dk = depKey(r, sp, kU, kS, par);
+  let amt = (d[dk]||d.va)[r] || 0;
+  if(r >= 30){
+    if(kU > 1) amt += (kU - 1) * ((d.xc||{})[r]||0);
+    if(kS > 0) amt += kS * ((d.xs||{})[r]||0);
+    if(sp && aaFlag) amt += ((d.aa||{})[r]||0);
+  }
+  return amt;
+}
+
+// ═══ TABS ═══
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.tab).classList.add('active');
+  });
+});
+
+// ═══ SHARED STATE & UTILITIES ═══
+const today = new Date();
+const ago = new Date(today); ago.setFullYear(ago.getFullYear()-1);
+const fmt = d => d.toISOString().split('T')[0];
+const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtMY = (m,y) => MN[m]+' '+y;
+const fmtC = n => '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+let stageId = 0;
+let crId = 0;
+let lastRows = [];
+
+// ═══ INIT (set defaults) ═══
+document.getElementById('effDate').value = fmt(ago);
+document.getElementById('decDate').value = fmt(today);
+document.getElementById('wiEffDate').value = fmt(ago);
+document.getElementById('wiEndDate').value = fmt(today);
+document.getElementById('smcBpEffDate').value = fmt(ago);
+document.getElementById('smcBpDecDate').value = fmt(today);
+
+// ═══ STAGE MANAGEMENT ═══
+function addStage(){
+  stageId++;
+  const list = document.getElementById('stageList');
+  const div = document.createElement('div');
+  div.className = 'stage-row';
+  div.dataset.id = stageId;
+  const isFirst = list.children.length === 0;
+  div.innerHTML = `
+    <div class="form-group">
+      <label>Effective Date <span class="hint">When this rating began</span></label>
+      <input type="date" class="stage-date" value="${isFirst ? document.getElementById('effDate').value : ''}">
+    </div>
+    <div class="form-group">
+      <label>Rating</label>
+      <select class="stage-rate">
+        <option value="10">10%</option><option value="20">20%</option><option value="30">30%</option>
+        <option value="40">40%</option><option value="50">50%</option><option value="60">60%</option>
+        <option value="70" ${isFirst?'selected':''}>70%</option><option value="80">80%</option>
+        <option value="90">90%</option><option value="100">100%</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>&nbsp;</label>
+      <span style="font-size:12px;color:var(--gray-500);padding:10px 0;">Period ${list.children.length + 1}</span>
+    </div>
+    <button class="remove-btn" onclick="removeStage(this)" title="Remove">&times;</button>
+  `;
+  list.appendChild(div);
+}
+function removeStage(btn){
+  const list = document.getElementById('stageList');
+  if(list.children.length <= 1) return;
+  btn.closest('.stage-row').remove();
+}
+function getStages(){
+  const rows = document.querySelectorAll('#stageList .stage-row');
+  return Array.from(rows).map(r => ({
+    date: r.querySelector('.stage-date').value,
+    rating: parseInt(r.querySelector('.stage-rate').value)
+  })).filter(s => s.date).sort((a,b) => a.date.localeCompare(b.date));
+}
+
+// ═══ TOGGLES ═══
+function toggleFirst(){
+  const first = document.getElementById('firstClaim').checked;
+  document.getElementById('prevRateWrap').classList.toggle('hidden', first);
+  if(first) document.getElementById('prevRating').value = '0';
+}
+function toggleDep(){
+  const has = document.getElementById('hasDep').checked;
+  document.getElementById('depBox').classList.toggle('hidden', !has);
+  if(!has){
+    document.getElementById('hasSpouse').value='0';
+    document.getElementById('spAA').value='0';
+    document.getElementById('kidsU18').value='0';
+    document.getElementById('kids1823').value='0';
+    document.getElementById('depPar').value='0';
+  }
+  toggleAA();
+}
+function toggleAA(){
+  const sp = document.getElementById('hasSpouse').value==='1';
+  document.getElementById('aaWrap').classList.toggle('hidden', !sp);
+  if(!sp) document.getElementById('spAA').value='0';
+}
+function toggleEl(bodyId, caretId){
+  document.getElementById(bodyId).classList.toggle('hidden');
+  document.getElementById(caretId).classList.toggle('open');
+}
+
+function resetAll(){
+  document.getElementById('effDate').value = fmt(ago);
+  document.getElementById('decDate').value = fmt(today);
+  document.getElementById('firstClaim').checked = true;
+  document.getElementById('prevRating').value = '0';
+  document.getElementById('hasDep').checked = false;
+  document.getElementById('stageList').innerHTML = '';
+  stageId = 0; addStage();
+  toggleFirst(); toggleDep();
+  document.getElementById('results').classList.add('hidden');
+  ['dateErr','ratingErr'].forEach(id => document.getElementById(id).classList.add('hidden'));
+}
+
+// ═══ HELPER ═══
+function showErr(id,msg){ const el=document.getElementById(id); el.textContent=msg; el.classList.remove('hidden'); }
+function getDeps(){
+  const has = document.getElementById('hasDep').checked;
+  return {
+    sp: has && document.getElementById('hasSpouse').value==='1',
+    aa: has && document.getElementById('spAA').value==='1',
+    kU: has ? parseInt(document.getElementById('kidsU18').value)||0 : 0,
+    kS: has ? parseInt(document.getElementById('kids1823').value)||0 : 0,
+    par: has ? parseInt(document.getElementById('depPar').value)||0 : 0
+  };
+}
+
+// ═══ CALCULATE ═══
+function calculate(){
+  try {
+  ['dateErr','ratingErr'].forEach(id => document.getElementById(id).classList.add('hidden'));
+
+  function parseD(v){ const p=v.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+  const effVal = document.getElementById('effDate').value;
+  const decVal = document.getElementById('decDate').value;
+  if(!effVal||!decVal){ showErr('dateErr','Please enter valid dates.'); return; }
+  const eff = parseD(effVal);
+  const dec = parseD(decVal);
+  const prevR = parseInt(document.getElementById('prevRating').value);
+  const dep = getDeps();
+  const stages = getStages();
+
+  if(isNaN(eff.getTime())||isNaN(dec.getTime())){ showErr('dateErr','Please enter valid dates.'); return; }
+  if(eff>=dec){ showErr('dateErr','Effective date must be before decision date.'); return; }
+  if(stages.length===0){ showErr('ratingErr','Add at least one rating period.'); return; }
+
+  // Build month-by-month
+  const start = new Date(eff.getFullYear(), eff.getMonth()+1, 1);
+  const end = new Date(dec.getFullYear(), dec.getMonth(), 1);
+  if(start>end){ showErr('dateErr','Date range too short for any backpay months.'); return; }
+
+  // Sort stages by date
+  const stg = stages.map(s => { const p=s.date.split('-'); return { dt: new Date(+p[0],+p[1]-1,+p[2]), r: s.rating }; });
+
+  // For each month, find which stage rating applies
+  function ratingForMonth(y,m){
+    const monthStart = new Date(y, m, 1);
+    let best = stg[0].r;
+    for(const s of stg){
+      if(s.dt <= monthStart) best = s.r;
+    }
+    return best;
+  }
+
+  const rows = [];
+  let total = 0, months = 0;
+  let cur = new Date(start);
+  while(cur <= end){
+    const y = cur.getFullYear(), m = cur.getMonth();
+    const ry = clampYr(rateYr(y,m));
+    const rating = ratingForMonth(y,m);
+    const newAmt = mRate(ry, rating, dep.sp, dep.kU, dep.kS, dep.par, dep.aa);
+    const prevAmt = prevR > 0 ? mRate(ry, prevR, dep.sp, dep.kU, dep.kS, dep.par, dep.aa) : 0;
+    const diff = Math.max(0, newAmt - prevAmt);
+    rows.push({ y, m, ry, rating, newAmt, prevAmt, diff, label: fmtMY(m,y) });
+    total += diff;
+    months++;
+    cur.setMonth(cur.getMonth()+1);
+  }
+
+  lastRows = rows;
+  renderResults(rows, total, months, eff, dec, prevR, dep, stages);
+  } catch(e) {
+    console.error('Calculate error:', e);
+    showErr('dateErr', 'Calculation error: ' + e.message);
+  }
+}
+
+function renderResults(rows, total, months, eff, dec, prevR, dep, stages){
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('totalAmt').textContent = fmtC(total);
+  document.getElementById('totalSub').textContent = months+' month'+(months!==1?'s':'')+' of retroactive compensation';
+
+  const eStr = eff.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const dStr = dec.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const rStr = stages.map(s=>s.rating+'%').join(' → ');
+  const rLabel = prevR > 0 ? prevR+'% → '+rStr : rStr;
+
+  const depParts = [];
+  if(dep.sp) depParts.push('Spouse'+(dep.aa?' (A&A)':''));
+  if(dep.kU) depParts.push(dep.kU+' child'+(dep.kU>1?'ren':''));
+  if(dep.kS) depParts.push(dep.kS+' school-age');
+  if(dep.par) depParts.push(dep.par+' parent'+(dep.par>1?'s':''));
+  const depStr = depParts.length ? depParts.join(', ') : 'None';
+
+  document.getElementById('sumGrid').innerHTML = `
+    <div class="s-card"><div class="sl">Effective</div><div class="sv">${eStr}</div></div>
+    <div class="s-card"><div class="sl">Decision</div><div class="sv">${dStr}</div></div>
+    <div class="s-card"><div class="sl">Rating</div><div class="sv">${rLabel}</div></div>
+    <div class="s-card"><div class="sl">Months</div><div class="sv">${months}</div></div>
+    <div class="s-card"><div class="sl">Dependents</div><div class="sv">${depStr}</div></div>
+  `;
+
+  // Math detail
+  const firstRow = rows[0];
+  const lastRow = rows[rows.length-1];
+  let mathHtml = '<strong>How this was calculated:</strong><br>';
+  if(stages.length === 1){
+    mathHtml += `For each month from ${firstRow.label} to ${lastRow.label}, the calculator looks up the VA rate for a ${stages[0].rating}% rating`;
+    if(prevR > 0) mathHtml += ` and subtracts the ${prevR}% rate`;
+    mathHtml += '. Rates change each December 1st (COLA), so different rate tables apply across years.';
+    if(dep.sp || dep.kU || dep.kS || dep.par){
+      mathHtml += ' Dependent adjustments are included in each month\'s rate.';
+    }
+    mathHtml += `<br>Example: In ${firstRow.label}, the monthly rate is ${fmtC(firstRow.newAmt)}`;
+    if(prevR > 0) mathHtml += ` minus prior rate of ${fmtC(firstRow.prevAmt)} = ${fmtC(firstRow.diff)}`;
+    mathHtml += '.';
+  } else {
+    mathHtml += 'Multiple rating periods applied. The calculator uses the rating in effect for each month and the appropriate COLA rate table.';
+  }
+  document.getElementById('mathBox').innerHTML = mathHtml;
+
+  // Table
+  const tbody = document.getElementById('tBody');
+  tbody.innerHTML = '';
+  const mobile = document.getElementById('mobileBreak');
+  mobile.innerHTML = '';
+
+  const groups = {};
+  rows.forEach(r => { if(!groups[r.ry]) groups[r.ry]=[]; groups[r.ry].push(r); });
+
+  for(const ry of Object.keys(groups).sort()){
+    const grp = groups[ry];
+    let yrTotal = 0;
+    grp.forEach(r => {
+      yrTotal += r.diff;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.label}</td><td>${r.rating}%</td><td>${fmtC(r.newAmt)}</td><td>${r.prevAmt>0?fmtC(r.prevAmt):'—'}</td><td>${fmtC(r.diff)}</td>`;
+      tbody.appendChild(tr);
+
+      const mc = document.createElement('div');
+      mc.className = 'mb-card';
+      mc.innerHTML = `<div class="mb-month">${r.label} · ${r.rating}%</div>
+        <div class="mb-row"><span>Rate</span><span>${fmtC(r.newAmt)}</span></div>
+        ${r.prevAmt>0?`<div class="mb-row"><span>Prior</span><span>${fmtC(r.prevAmt)}</span></div>`:''}
+        <div class="mb-row"><span><strong>Owed</strong></span><span><strong>${fmtC(r.diff)}</strong></span></div>`;
+      mobile.appendChild(mc);
+    });
+    const sub = document.createElement('tr');
+    sub.className = 'yr-row';
+    sub.innerHTML = `<td colspan="4">${ry} Rate Year · ${grp.length} mo</td><td>${fmtC(yrTotal)}</td>`;
+    tbody.appendChild(sub);
+
+    const mc2 = document.createElement('div');
+    mc2.className = 'mb-card yr-card';
+    mc2.innerHTML = `<div class="mb-row"><span>${ry} Subtotal (${grp.length} mo)</span><span>${fmtC(yrTotal)}</span></div>`;
+    mobile.appendChild(mc2);
+  }
+
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ═══ CSV EXPORT ═══
+function exportCSV(){
+  if(!lastRows.length) return;
+  let csv = 'Month,Rating,Monthly Rate,Prior Rate,Difference\n';
+  lastRows.forEach(r => {
+    csv += `"${r.label}",${r.rating}%,${r.newAmt.toFixed(2)},${r.prevAmt.toFixed(2)},${r.diff.toFixed(2)}\n`;
+  });
+  const total = lastRows.reduce((s,r)=>s+r.diff,0);
+  csv += `\nTotal,,,,${total.toFixed(2)}\n`;
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'va-backpay-estimate.csv';
+  a.click();
+}
+
+// ═══ COMBINED RATING CALCULATOR ═══
+const RATE_OPTS = '<option value="-1">—</option><option value="0">0%</option><option value="10">10%</option><option value="20">20%</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%</option><option value="80">80%</option><option value="90">90%</option><option value="100">100%</option>';
+
+function addCR(name, rating){
+  crId++;
+  const list = document.getElementById('crList');
+  const div = document.createElement('div');
+  div.className = 'cr-row';
+  div.dataset.id = crId;
+  const n = name || '';
+  const num = list.children.length + 1;
+  div.innerHTML = `
+    <input type="text" class="cr-name" placeholder="Condition ${num}" value="${n}" oninput="calcCR()">
+    <select class="cr-val" onchange="calcCR()">${RATE_OPTS.replace('value="-1">—', 'value="-1">Select')}</select>
+    <input type="checkbox" class="cr-bilat-cb" onchange="calcCR()" title="Bilateral">
+    <select class="cr-wi" onchange="onWiChange(this);calcCR()">${RATE_OPTS}</select>
+    <button class="remove-btn" onclick="removeCR(this)" title="Remove">&times;</button>
+  `;
+  list.appendChild(div);
+  if(typeof rating === 'number' && rating >= 0){
+    div.querySelector('.cr-val').value = rating;
+  }
+}
+
+function onWiChange(sel){
+  const row = sel.closest('.cr-row');
+  const hasWi = parseInt(sel.value) >= 0;
+  sel.classList.toggle('active', hasWi);
+  row.classList.toggle('has-whatif', hasWi);
+}
+
+function removeCR(btn){
+  const list = document.getElementById('crList');
+  if(list.children.length <= 1) return;
+  btn.closest('.cr-row').remove();
+  calcCR();
+}
+
+// Helper: combine an array of ratings using VA whole-person method (no rounding)
+function combineRatings(vals){
+  let combined = 0;
+  const steps = [];
+  const sorted = [...vals].sort((a,b) => b-a);
+  sorted.forEach((v, i) => {
+    if(i === 0){
+      combined = v;
+      steps.push(`${v}%`);
+    } else {
+      const remaining = 100 - combined;
+      const add = remaining * v / 100;
+      combined += add;
+      steps.push(`${v}% of ${remaining.toFixed(1)}% = +${add.toFixed(1)}%`);
+    }
+  });
+  return { combined, steps };
+}
+
+// Compute combined rating with bilateral factor from an entries array [{val, bilat}]
+function computeCombined(entries){
+  const nonZero = entries.filter(e => e.val > 0);
+  if(nonZero.length === 0) return { exact: 0, rounded: 0, steps: [], hasBilateral: false };
+  if(nonZero.length === 1) return { exact: nonZero[0].val, rounded: nonZero[0].val, steps: [`Single: ${nonZero[0].val}%`], hasBilateral: false };
+
+  const bilatVals = nonZero.filter(e => e.bilat).map(e => e.val);
+  const nonBilatVals = nonZero.filter(e => !e.bilat).map(e => e.val);
+  const hasBilateral = bilatVals.length >= 2;
+  let allSteps = [];
+
+  if(hasBilateral){
+    const bilatResult = combineRatings(bilatVals);
+    const bilatFactor = bilatResult.combined * 0.10;
+    const bilatAdjusted = bilatResult.combined + bilatFactor;
+    allSteps.push(`<strong>Bilateral:</strong> ${bilatResult.steps.join(' → ')} = ${bilatResult.combined.toFixed(1)}%`);
+    allSteps.push(`+10% factor → ${bilatAdjusted.toFixed(1)}%`);
+    const finalResult = combineRatings([bilatAdjusted, ...nonBilatVals]);
+    allSteps.push(`<strong>Combined:</strong> ${finalResult.steps.join(' → ')}`);
+    const exact = finalResult.combined;
+    return { exact, rounded: Math.round(exact/10)*10, steps: allSteps, hasBilateral };
+  } else {
+    const result = combineRatings(nonZero.map(e => e.val));
+    allSteps.push(result.steps.join(' → '));
+    return { exact: result.combined, rounded: Math.round(result.combined/10)*10, steps: allSteps, hasBilateral };
+  }
+}
+
+function calcCR(){
+  const rows = Array.from(document.querySelectorAll('#crList .cr-row'));
+  const panel = document.getElementById('crResultPanel');
+  const bilatNote = document.getElementById('crBilatNote');
+  const wiCard = document.getElementById('crWhatIfCard');
+  const grid = document.getElementById('crResultGrid');
+
+  // Gather current entries
+  const entries = [];
+  const wiChanges = [];
+  let hasAnyWi = false;
+
+  rows.forEach(r => {
+    const val = parseInt(r.querySelector('.cr-val').value);
+    const bilat = r.querySelector('.cr-bilat-cb').checked;
+    const wiVal = parseInt(r.querySelector('.cr-wi').value);
+    const name = r.querySelector('.cr-name').value || r.querySelector('.cr-name').placeholder;
+    if(val >= 0) entries.push({ val, bilat, name });
+    if(wiVal >= 0 && val >= 0 && wiVal !== val){
+      hasAnyWi = true;
+      wiChanges.push({ name, from: val, to: wiVal, bilat });
+    }
+  });
+
+  if(entries.length === 0){
+    panel.classList.add('hidden');
+    bilatNote.classList.add('hidden');
+    return;
+  }
+
+  // Compute current combined
+  const cur = computeCombined(entries);
+  panel.classList.remove('hidden');
+  bilatNote.classList.toggle('hidden', !cur.hasBilateral);
+
+  document.getElementById('crRounded').textContent = cur.rounded + '%';
+  document.getElementById('crExact').textContent = cur.exact.toFixed(2) + '%';
+
+  // Compute what-if if any changes
+  if(hasAnyWi){
+    const wiEntries = entries.map(e => {
+      const change = wiChanges.find(c => c.name === e.name);
+      return change ? { val: change.to, bilat: e.bilat, name: e.name } : { ...e };
+    });
+    const wi = computeCombined(wiEntries);
+    const rDiff = wi.rounded - cur.rounded;
+    const eDiff = wi.exact - cur.exact;
+
+    wiCard.classList.remove('hidden');
+    grid.classList.add('has-whatif');
+
+    document.getElementById('crWiRounded').textContent = wi.rounded + '%';
+    document.getElementById('crWiExact').textContent = 'Raw: ' + wi.exact.toFixed(2) + '%';
+
+    const deltaEl = document.getElementById('crWiDelta');
+    if(rDiff > 0){
+      deltaEl.innerHTML = `<span class="cr-delta up">+${rDiff}% rating</span>`;
+    } else if(rDiff < 0){
+      deltaEl.innerHTML = `<span class="cr-delta down">${rDiff}% rating</span>`;
+    } else if(Math.abs(eDiff) > 0.01){
+      deltaEl.innerHTML = `<span class="cr-delta same">Same rounded (raw ${eDiff>0?'+':''}${eDiff.toFixed(2)}%)</span>`;
+    } else {
+      deltaEl.innerHTML = `<span class="cr-delta same">No change</span>`;
+    }
+
+    const changesEl = document.getElementById('crWiChanges');
+    changesEl.innerHTML = wiChanges.map(c => `${c.name}: ${c.from}% → ${c.to}%`).join('<br>');
+
+    // Math shows what-if steps
+    document.getElementById('crMath').innerHTML = `<strong>What-If math:</strong> ${wi.steps.join('<br>')}`;
+  } else {
+    wiCard.classList.add('hidden');
+    grid.classList.remove('has-whatif');
+    document.getElementById('crMath').innerHTML = `<strong>Current math:</strong> ${cur.steps.join('<br>')}`;
+  }
+}
+
+// ═══ SMC CALCULATOR ═══
+const SMC_LADDER = ['S','L','Lh','M','Mh','N','Nh','O','R1','R2'];
+const SMC_LABELS = {S:'SMC-S',L:'SMC-L',Lh:'SMC-L\u00bd',M:'SMC-M',Mh:'SMC-M\u00bd',N:'SMC-N',Nh:'SMC-N\u00bd',O:'SMC-O',R1:'SMC-R.1',R2:'SMC-R.2',T:'SMC-T',K:'SMC-K'};
+function smcIdx(lv){ return SMC_LADDER.indexOf(lv); }
+function smcStep(lv, steps){
+  let i = smcIdx(lv);
+  if(i < 0) return lv;
+  i = Math.min(i + steps, smcIdx('O')); // cap at O for bumps
+  return SMC_LADDER[i];
+}
+
+// SMC condition types → base qualifying level
+const SMC_TYPES = [
+  {v:'both_feet', label:'Loss of use — both feet', level:'L'},
+  {v:'hand_foot', label:'Loss of use — one hand + one foot', level:'L'},
+  {v:'blind_5200', label:'Blindness — both eyes 5/200 or less', level:'L'},
+  {v:'bedridden', label:'Permanently bedridden', level:'L'},
+  {v:'aa_need', label:'Needs regular Aid & Attendance', level:'L'},
+  {v:'both_hands', label:'Loss of use — both hands', level:'M'},
+  {v:'both_legs_knee', label:'Both legs at/above knee (no prosthetic knee action)', level:'M'},
+  {v:'arm_leg', label:'One arm + one leg (no prosthetic joint action)', level:'M'},
+  {v:'blind_light', label:'Blindness — both eyes light perception only', level:'M'},
+  {v:'both_arms_elbow', label:'Both arms at/above elbow (no prosthetic elbow action)', level:'N'},
+  {v:'both_legs_hip', label:'Both legs near hip (no prosthetic use)', level:'N'},
+  {v:'arm_shoulder_leg_hip', label:'One arm near shoulder + one leg near hip', level:'N'},
+  {v:'blind_none', label:'Blindness — both eyes no light perception / anatomical loss', level:'N'},
+  {v:'both_arms_shoulder', label:'Both arms near shoulder (no prosthetic use)', level:'O'},
+  {v:'paraplegia', label:'Paraplegia with sphincter loss', level:'O'},
+  {v:'deaf_blind', label:'Bilateral deafness 60%+ with blindness 20/200 or less', level:'O'}
+];
+
+let smcCondId = 0, smcBumpId = 0;
+
+function smcTypeOptions(){
+  return '<option value="">Select condition type...</option>' + SMC_TYPES.map(t => `<option value="${t.v}">${t.label}</option>`).join('');
+}
+
+function addSmcCond(){
+  smcCondId++;
+  const list = document.getElementById('smcCondList');
+  const div = document.createElement('div');
+  div.className = 'smc-row';
+  div.dataset.id = smcCondId;
+  const num = list.children.length + 1;
+  div.innerHTML = `
+    <input type="text" placeholder="Condition ${num}" class="smc-cond-name">
+    <select class="smc-cond-type" onchange="calcSMC()">${smcTypeOptions()}</select>
+    <span class="smc-cond-level" style="font-size:12px;color:var(--gray-500);text-align:center;">—</span>
+    <button class="remove-btn" onclick="removeSmcRow(this,'smcCondList')" title="Remove" style="width:28px;height:28px;font-size:14px;">&times;</button>
+  `;
+  list.appendChild(div);
+}
+
+function addSmcBump(){
+  smcBumpId++;
+  const list = document.getElementById('smcBumpList');
+  const div = document.createElement('div');
+  div.className = 'smc-bump-row';
+  div.dataset.id = smcBumpId;
+  const num = list.children.length + 1;
+  div.innerHTML = `
+    <input type="text" placeholder="Condition ${num}" class="smc-bump-name" style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:7px 8px;font-size:14px;font-family:inherit;width:100%;">
+    <select class="smc-bump-rate" onchange="calcSMC()">
+      <option value="-1">Select</option><option value="0">0%</option><option value="10">10%</option><option value="20">20%</option>
+      <option value="30">30%</option><option value="40">40%</option><option value="50">50%</option>
+      <option value="60">60%</option><option value="70">70%</option><option value="80">80%</option>
+      <option value="90">90%</option><option value="100">100%</option>
+    </select>
+    <select class="smc-wi smc-bump-wi" onchange="this.classList.toggle('active',parseInt(this.value)>=0);calcSMC()">
+      ${RATE_OPTS}
+    </select>
+    <button class="remove-btn" onclick="removeSmcRow(this,'smcBumpList')" title="Remove" style="width:28px;height:28px;font-size:14px;">&times;</button>
+  `;
+  list.appendChild(div);
+}
+
+function removeSmcRow(btn, listId){
+  const list = document.getElementById(listId);
+  if(list.children.length <= 0) return;
+  btn.closest('.smc-row,.smc-bump-row').remove();
+  calcSMC();
+}
+
+function toggleSmcAA(){
+  const sp = document.getElementById('smcSpouse').value === '1';
+  document.getElementById('smcAAWrap').classList.toggle('hidden', !sp);
+  if(!sp) document.getElementById('smcSpAA').value = '0';
+}
+
+function getSmcDeps(){
+  return {
+    sp: document.getElementById('smcSpouse').value === '1',
+    aa: document.getElementById('smcSpAA').value === '1',
+    kU: parseInt(document.getElementById('smcKidsU18').value) || 0,
+    kS: parseInt(document.getElementById('smcKids1823').value) || 0,
+    par: parseInt(document.getElementById('smcDepPar').value) || 0
+  };
+}
+
+function getSmcKCount(){
+  let count = 0;
+  if(document.getElementById('smcK1').checked) count++;
+  if(document.getElementById('smcK2').checked) count++;
+  if(document.getElementById('smcK3').checked) count++;
+  return Math.min(count, 3);
+}
+
+// Look up SMC rate for a given level, year, and dependent config
+// SMC dependent rates = smcVaRate + (regularDep100 - regularVa100)
+// The dollar difference between va and any dep tier at 100% is the same for all SMC levels
+function smcRate(level, yr, deps){
+  if(!SMC_R[yr] || SMC_R[yr][level] === undefined) return 0;
+  const smcVa = SMC_R[yr][level]; // veteran-alone base rate (or K flat amount)
+  if(level === 'K') return smcVa;
+
+  // Get the regular comp at 100% for veteran-alone
+  const regVa100 = R[yr] ? R[yr].va[100] : 0;
+
+  // Get the regular comp at 100% for this dep configuration
+  // (reuse existing depKey and table lookup for the dep differential)
+  const dk = depKey(100, deps.sp, deps.kU, deps.kS, deps.par);
+  const regDep100 = R[yr] ? ((R[yr][dk] || R[yr].va)[100] || 0) : 0;
+
+  // SMC rate = smcVaBase + dependent differential from regular 100% tables
+  let amt = smcVa + (regDep100 - regVa100);
+
+  // Extra children surcharges (same as regular comp)
+  if(deps.kU > 1) amt += (deps.kU - 1) * ((R[yr].xc || {})[100] || 0);
+  if(deps.kS > 0) amt += deps.kS * ((R[yr].xs || {})[100] || 0);
+  if(deps.sp && deps.aa) amt += ((R[yr].aa || {})[100] || 0);
+  return amt;
+}
+
+// Determine SMC level from conditions, bumps, and flags
+function determineSMC(conditions, bumpRatings, flags){
+  const path = [];
+  let baseLevel = null;
+  let baseReason = '';
+
+  // 1. Map conditions to qualifying levels
+  const qualLevels = [];
+  conditions.forEach(c => {
+    const t = SMC_TYPES.find(t => t.v === c.type);
+    if(t) qualLevels.push({ level: t.level, label: c.name || t.label });
+  });
+
+  if(qualLevels.length === 0){
+    // Check SMC-S qualification from bump disabilities
+    // Need: one 100% disability + separate 60%+ combined
+    const has100 = bumpRatings.some(r => r === 100);
+    const otherRatings = bumpRatings.filter(r => r > 0);
+    const otherCombined = otherRatings.length > 0 ? computeCombined(otherRatings.map(v=>({val:v,bilat:false}))).rounded : 0;
+
+    if(has100 && otherRatings.length >= 1){
+      // Remove one 100% and check if rest combines to 60%+
+      const without100 = [...bumpRatings];
+      without100.splice(without100.indexOf(100), 1);
+      const restCombined = without100.filter(v=>v>0).length > 0 ?
+        computeCombined(without100.filter(v=>v>0).map(v=>({val:v,bilat:false}))).rounded : 0;
+      if(restCombined >= 60){
+        baseLevel = 'S';
+        baseReason = '100% + separate 60%+ (housebound)';
+        path.push('Qualifies for SMC-S: 100% single disability + ' + restCombined + '% separate');
+      }
+    }
+    if(!baseLevel && flags.housebound){
+      baseLevel = 'S';
+      baseReason = 'Factually housebound';
+      path.push('Qualifies for SMC-S: factually housebound');
+    }
+    if(!baseLevel) return { level: null, path: ['No SMC-qualifying conditions entered'], payment: 0, baseLevel: null };
+  } else {
+    // Check for two separate qualifying conditions (L-N) → auto O
+    const lnQuals = qualLevels.filter(q => ['L','M','N'].includes(q.level));
+    if(lnQuals.length >= 2){
+      baseLevel = 'O';
+      baseReason = 'Two separate SMC conditions';
+      path.push(`Auto SMC-O: ${lnQuals.map(q=>q.label).join(' + ')} (two independent L-N qualifications)`);
+    } else {
+      // Take highest qualifying level
+      let highest = null;
+      qualLevels.forEach(q => {
+        if(!highest || smcIdx(q.level) > smcIdx(highest.level)) highest = q;
+      });
+      if(highest){
+        baseLevel = highest.level;
+        baseReason = highest.label;
+        path.push(`Base level: ${SMC_LABELS[baseLevel]} — ${highest.label}`);
+      }
+    }
+  }
+
+  let finalLevel = baseLevel;
+
+  // 2. Apply bump-ups if base is L through N (not S, not already O+)
+  if(baseLevel && ['L','Lh','M','Mh','N','Nh'].includes(baseLevel) && bumpRatings.length > 0){
+    const nonZeroBumps = bumpRatings.filter(r => r > 0);
+
+    // Combine additional disabilities
+    let combinedBump = 0;
+    if(nonZeroBumps.length > 0){
+      combinedBump = computeCombined(nonZeroBumps.map(v=>({val:v,bilat:false}))).rounded;
+    }
+
+    // f(4): single 100% = full step bump (applied first for max benefit)
+    const has100 = nonZeroBumps.includes(100);
+    if(has100 && smcIdx(finalLevel) < smcIdx('O')){
+      const oldLevel = finalLevel;
+      finalLevel = smcStep(finalLevel, 2); // full step = 2 positions on ladder
+      path.push(`Full-step bump: 38 CFR 3.350(f)(4) — single 100% disability → ${SMC_LABELS[oldLevel]} to ${SMC_LABELS[finalLevel]}`);
+    }
+
+    // f(3): each 50% combined chunk = half-step bump (Barry allows multiple)
+    if(combinedBump >= 50 && smcIdx(finalLevel) < smcIdx('O')){
+      const halfBumps = Math.floor(combinedBump / 50);
+      for(let i = 0; i < halfBumps && smcIdx(finalLevel) < smcIdx('O'); i++){
+        const oldLevel = finalLevel;
+        finalLevel = smcStep(finalLevel, 1);
+        if(i === 0){
+          path.push(`Half-step bump: 38 CFR 3.350(f)(3) — ${combinedBump}% combined additional → ${SMC_LABELS[oldLevel]} to ${SMC_LABELS[finalLevel]}`);
+        } else {
+          path.push(`Additional half-step bump (Barry v. McDonough) → ${SMC_LABELS[finalLevel]}`);
+        }
+      }
+    }
+  }
+
+  // 3. Check R eligibility (requires O level)
+  if(finalLevel === 'O'){
+    if(flags.nursingAA){
+      finalLevel = 'R2';
+      path.push('SMC-R.2: at O level + requires licensed healthcare professional A&A');
+    } else {
+      // Check if any qualifying condition includes A&A
+      const hasAA = qualLevels.some(q => ['aa_need','bedridden'].includes(
+        conditions.find(c => (c.name||'') === (q.label||''))?.type || ''
+      )) || conditions.some(c => c.type === 'aa_need');
+      if(hasAA){
+        finalLevel = 'R1';
+        path.push('SMC-R.1: at O level + requires regular aid & attendance');
+      }
+    }
+  }
+
+  // 4. Check SMC-T
+  if(flags.tbi && finalLevel !== 'R2'){
+    // T pays same as R2 but different qualification
+    if(smcIdx(finalLevel) >= smcIdx('O') || finalLevel === 'R1'){
+      finalLevel = 'R2'; // T pays R2 rate
+      path.push('SMC-T: TBI requiring A&A, institutional care needed (pays R.2 rate)');
+    }
+  }
+
+  // S is overridden if we qualified for L or higher
+  if(baseLevel === 'S' && smcIdx(finalLevel) >= smcIdx('L')){
+    // shouldn't happen given our logic, but safety
+  }
+
+  return { level: finalLevel, path, baseLevel, baseReason };
+}
+
+function calcSMC(){
+  // Gather SMC conditions
+  const condRows = Array.from(document.querySelectorAll('#smcCondList .smc-row'));
+  const conditions = [];
+  condRows.forEach(r => {
+    const type = r.querySelector('.smc-cond-type').value;
+    const name = r.querySelector('.smc-cond-name').value;
+    const levelSpan = r.querySelector('.smc-cond-level');
+    if(type){
+      const t = SMC_TYPES.find(t => t.v === type);
+      conditions.push({ type, name: name || (t ? t.label : ''), level: t ? t.level : null });
+      levelSpan.textContent = t ? SMC_LABELS[t.level] : '—';
+      levelSpan.style.color = t ? 'var(--green)' : 'var(--gray-500)';
+      levelSpan.style.fontWeight = t ? '700' : '400';
+    } else {
+      levelSpan.textContent = '—';
+      levelSpan.style.color = 'var(--gray-500)';
+      levelSpan.style.fontWeight = '400';
+    }
+  });
+
+  // Gather bump disabilities (current and what-if)
+  const bumpRows = Array.from(document.querySelectorAll('#smcBumpList .smc-bump-row'));
+  const bumpRatings = [];
+  const bumpWiRatings = [];
+  const bumpChanges = [];
+  let hasAnyWi = false;
+  bumpRows.forEach(r => {
+    const val = parseInt(r.querySelector('.smc-bump-rate').value);
+    const wiVal = parseInt(r.querySelector('.smc-bump-wi').value);
+    const name = r.querySelector('.smc-bump-name').value || r.querySelector('.smc-bump-name').placeholder;
+    if(val >= 0){
+      bumpRatings.push(val);
+      if(wiVal >= 0 && wiVal !== val){
+        hasAnyWi = true;
+        bumpWiRatings.push(wiVal);
+        bumpChanges.push({ name, from: val, to: wiVal });
+      } else {
+        bumpWiRatings.push(val);
+      }
+    }
+  });
+
+  // Show combined additional
+  const combNote = document.getElementById('smcBumpCombined');
+  const nonZeroBumps = bumpRatings.filter(r => r > 0);
+  if(nonZeroBumps.length > 0){
+    const combined = computeCombined(nonZeroBumps.map(v=>({val:v,bilat:false})));
+    combNote.classList.remove('hidden');
+    combNote.innerHTML = `<strong>Combined additional:</strong> ${combined.exact.toFixed(1)}% exact → ${combined.rounded}% rounded` +
+      (combined.rounded >= 50 ? ' <span style="color:var(--green);font-weight:700;">&#10003; Qualifies for half-step bump</span>' : '');
+  } else {
+    combNote.classList.add('hidden');
+  }
+
+  // Flags
+  const flags = {
+    housebound: document.getElementById('smcHousebound').checked,
+    nursingAA: document.getElementById('smcNursingAA').checked,
+    tbi: document.getElementById('smcTBI').checked
+  };
+
+  // K count
+  const kCount = getSmcKCount();
+  const kTotal = document.getElementById('smcKTotal');
+  if(kCount > 0){
+    const yr = parseInt(document.getElementById('smcYear').value);
+    const kAmt = typeof SMC_R !== 'undefined' && SMC_R[yr] ? SMC_R[yr].K : 139.87;
+    kTotal.classList.remove('hidden');
+    kTotal.textContent = `${kCount} × ${fmtC(kAmt)} = ${fmtC(kCount * kAmt)}/mo (added to base rate)`;
+  } else {
+    kTotal.classList.add('hidden');
+  }
+
+  // Determine SMC level
+  const result = determineSMC(conditions, bumpRatings, flags);
+  const panel = document.getElementById('smcResultPanel');
+
+  if(!result.level){
+    panel.classList.add('hidden');
+    return;
+  }
+
+  panel.classList.remove('hidden');
+  const yr = parseInt(document.getElementById('smcYear').value);
+  const deps = getSmcDeps();
+
+  // Base rate
+  let baseRate = smcRate(result.level, yr, deps);
+  const kAmt = typeof SMC_R !== 'undefined' && SMC_R[yr] ? SMC_R[yr].K : 139.87;
+  let kTotal2 = kCount * kAmt;
+
+  // K stacking cap: with L-O cannot exceed O rate; with R cannot exceed R1 rate
+  const oRate = smcRate('O', yr, deps);
+  const r1Rate = smcRate('R1', yr, deps);
+  if(['L','Lh','M','Mh','N','Nh','O'].includes(result.level)){
+    if(baseRate + kTotal2 > oRate) kTotal2 = Math.max(0, oRate - baseRate);
+  } else if(['R1','R2'].includes(result.level)){
+    // K can still stack but with different cap
+  }
+
+  const totalPay = baseRate + kTotal2;
+
+  // Render
+  document.getElementById('smcBaseLevel').textContent = SMC_LABELS[result.baseLevel] || '—';
+  document.getElementById('smcBaseReason').textContent = result.baseReason || '';
+  document.getElementById('smcFinalLevel').textContent = SMC_LABELS[result.level];
+  document.getElementById('smcFinalReason').textContent = result.level !== result.baseLevel ? 'After bump-ups' : 'No bumps applied';
+  document.getElementById('smcPayAmt').textContent = fmtC(totalPay);
+
+  let payBreak = SMC_LABELS[result.level] + ' base';
+  if(kCount > 0) payBreak += ` + ${kCount}×K`;
+  if(deps.sp || deps.kU || deps.kS || deps.par) payBreak += ' w/deps';
+  document.getElementById('smcPayBreak').textContent = payBreak;
+
+  // Path
+  document.getElementById('smcPath').innerHTML = '<strong>Determination path:</strong><br>' +
+    result.path.map(s => `<span class="smc-arrow">→</span> ${s}`).join('<br>');
+
+  // What-If
+  const wiCard = document.getElementById('smcWiCard');
+  const grid = document.getElementById('smcResultGrid');
+
+  if(hasAnyWi){
+    const wiResult = determineSMC(conditions, bumpWiRatings, flags);
+    if(wiResult.level){
+      let wiBase = smcRate(wiResult.level, yr, deps);
+      let wiK = kTotal2; // same K
+      if(['L','Lh','M','Mh','N','Nh','O'].includes(wiResult.level)){
+        const wiORate = smcRate('O', yr, deps);
+        if(wiBase + wiK > wiORate) wiK = Math.max(0, wiORate - wiBase);
+      }
+      const wiTotal = wiBase + wiK;
+      const diff = wiTotal - totalPay;
+
+      wiCard.classList.remove('hidden');
+      grid.classList.add('has-whatif');
+
+      document.getElementById('smcWiLevel').textContent = SMC_LABELS[wiResult.level];
+      document.getElementById('smcWiPay').textContent = fmtC(wiTotal) + '/mo';
+
+      const deltaEl = document.getElementById('smcWiDelta');
+      if(diff > 0){
+        deltaEl.innerHTML = `<span class="cr-delta up">+${fmtC(diff)}/mo</span>`;
+      } else if(diff < 0){
+        deltaEl.innerHTML = `<span class="cr-delta down">${fmtC(diff)}/mo</span>`;
+      } else {
+        deltaEl.innerHTML = `<span class="cr-delta same">No change</span>`;
+      }
+      document.getElementById('smcWiChanges').innerHTML = bumpChanges.map(c => `${c.name}: ${c.from}% → ${c.to}%`).join('<br>');
+    } else {
+      wiCard.classList.add('hidden');
+      grid.classList.remove('has-whatif');
+    }
+  } else {
+    wiCard.classList.add('hidden');
+    grid.classList.remove('has-whatif');
+  }
+}
+
+// ═══ SMC BACKPAY ═══
+function toggleSmcBpPrior(){
+  const type = document.getElementById('smcBpPriorType').value;
+  document.getElementById('smcBpPriorRatingWrap').classList.toggle('hidden', type !== 'rating');
+  document.getElementById('smcBpPriorSmcWrap').classList.toggle('hidden', type !== 'smc');
+}
+
+// Listen for custom fee toggle
+document.getElementById('smcBpRepFee').addEventListener('change', function(){
+  document.getElementById('smcBpCustomFeeWrap').classList.toggle('hidden', this.value !== 'custom');
+});
+
+let smcBpRows = [];
+
+function calcSmcBackpay(){
+  document.getElementById('smcBpErr').classList.add('hidden');
+
+  // Get dates
+  const effVal = document.getElementById('smcBpEffDate').value;
+  const decVal = document.getElementById('smcBpDecDate').value;
+  if(!effVal || !decVal){
+    showErr('smcBpErr', 'Please enter both dates.'); return;
+  }
+  const ep = effVal.split('-'), dp = decVal.split('-');
+  const eff = new Date(+ep[0], +ep[1]-1, +ep[2]);
+  const dec = new Date(+dp[0], +dp[1]-1, +dp[2]);
+  if(isNaN(eff.getTime()) || isNaN(dec.getTime())){
+    showErr('smcBpErr', 'Please enter valid dates.'); return;
+  }
+  if(eff >= dec){
+    showErr('smcBpErr', 'Effective date must be before decision date.'); return;
+  }
+
+  // Get the new SMC level from the calculator above
+  // Re-run determination to get current level
+  const condRows = Array.from(document.querySelectorAll('#smcCondList .smc-row'));
+  const conditions = [];
+  condRows.forEach(r => {
+    const type = r.querySelector('.smc-cond-type').value;
+    const name = r.querySelector('.smc-cond-name').value;
+    if(type){
+      const t = SMC_TYPES.find(t => t.v === type);
+      conditions.push({ type, name: name || (t ? t.label : ''), level: t ? t.level : null });
+    }
+  });
+  const bumpRows2 = Array.from(document.querySelectorAll('#smcBumpList .smc-bump-row'));
+  const bumpRatings = [];
+  bumpRows2.forEach(r => {
+    const val = parseInt(r.querySelector('.smc-bump-rate').value);
+    if(val >= 0) bumpRatings.push(val);
+  });
+  const flags = {
+    housebound: document.getElementById('smcHousebound').checked,
+    nursingAA: document.getElementById('smcNursingAA').checked,
+    tbi: document.getElementById('smcTBI').checked
+  };
+  const result = determineSMC(conditions, bumpRatings, flags);
+  if(!result.level){
+    showErr('smcBpErr', 'Set up SMC-qualifying conditions above first.'); return;
+  }
+
+  const newLevel = result.level;
+  const kCount = getSmcKCount();
+  const deps = getSmcDeps();
+
+  // Get prior compensation info
+  const priorType = document.getElementById('smcBpPriorType').value;
+  const priorRating = priorType === 'rating' ? parseInt(document.getElementById('smcBpPriorRating').value) : 0;
+  const priorSmcLevel = priorType === 'smc' ? document.getElementById('smcBpPriorSmc').value : null;
+
+  // Rep fee
+  const feeSelect = document.getElementById('smcBpRepFee').value;
+  const feePct = feeSelect === 'custom' ? (parseFloat(document.getElementById('smcBpCustomFee').value) || 0) : parseFloat(feeSelect);
+
+  // Build month-by-month
+  const start = new Date(eff.getFullYear(), eff.getMonth() + 1, 1);
+  const end = new Date(dec.getFullYear(), dec.getMonth(), 1);
+  if(start > end){
+    showErr('smcBpErr', 'Date range too short for any backpay months.'); return;
+  }
+
+  const rows = [];
+  let total = 0, months = 0;
+  let cur = new Date(start);
+
+  while(cur <= end){
+    const y = cur.getFullYear(), m = cur.getMonth();
+    const ry = clampYr(rateYr(y, m));
+
+    // New SMC rate
+    let newAmt = smcRate(newLevel, ry, deps);
+    // Add K
+    const kAmt = SMC_R[ry] ? SMC_R[ry].K : 0;
+    let kAdd = kCount * kAmt;
+    // K cap with L-O
+    if(['L','Lh','M','Mh','N','Nh','O'].includes(newLevel)){
+      const oRate = smcRate('O', ry, deps);
+      if(newAmt + kAdd > oRate) kAdd = Math.max(0, oRate - newAmt);
+    }
+    newAmt += kAdd;
+
+    // Prior rate
+    let priorAmt = 0;
+    if(priorType === 'rating' && priorRating > 0){
+      priorAmt = mRate(ry, priorRating, deps.sp, deps.kU, deps.kS, deps.par, deps.aa);
+    } else if(priorType === 'smc' && priorSmcLevel){
+      priorAmt = smcRate(priorSmcLevel, ry, deps);
+    }
+
+    const diff = Math.max(0, newAmt - priorAmt);
+    rows.push({
+      y, m, ry, newLevel, newAmt, priorAmt, diff,
+      label: fmtMY(m, y)
+    });
+    total += diff;
+    months++;
+    cur.setMonth(cur.getMonth() + 1);
+  }
+
+  smcBpRows = rows;
+
+  // Render
+  const repAmt = total * (feePct / 100);
+  const vetAmt = total - repAmt;
+
+  document.getElementById('smcBpResults').classList.remove('hidden');
+  document.getElementById('smcBpTotal').textContent = fmtC(total);
+  document.getElementById('smcBpSub').textContent = months + ' month' + (months !== 1 ? 's' : '') + ' of retroactive SMC compensation';
+
+  const eStr = eff.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  const dStr = dec.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  const priorLabel = priorType === 'smc' ? SMC_LABELS[priorSmcLevel] : (priorRating > 0 ? priorRating + '%' : 'None');
+
+  document.getElementById('smcBpSumGrid').innerHTML = `
+    <div class="s-card"><div class="sl">Effective</div><div class="sv">${eStr}</div></div>
+    <div class="s-card"><div class="sl">Decision</div><div class="sv">${dStr}</div></div>
+    <div class="s-card"><div class="sl">Prior</div><div class="sv">${priorLabel}</div></div>
+    <div class="s-card"><div class="sl">New Level</div><div class="sv">${SMC_LABELS[newLevel]}${kCount > 0 ? ' +' + kCount + 'K' : ''}</div></div>
+    <div class="s-card"><div class="sl">Months</div><div class="sv">${months}</div></div>
+  `;
+
+  // Rep fee box
+  const repBox = document.getElementById('smcBpRepBox');
+  if(feePct > 0){
+    repBox.classList.remove('hidden');
+    document.getElementById('smcBpRepAmt').textContent = fmtC(repAmt);
+    document.getElementById('smcBpRepPct').textContent = feePct + '% of ' + fmtC(total);
+    document.getElementById('smcBpVetAmt').textContent = fmtC(vetAmt);
+  } else {
+    repBox.classList.add('hidden');
+  }
+
+  // Table
+  const tbody = document.getElementById('smcBpTBody');
+  tbody.innerHTML = '';
+  const groups = {};
+  rows.forEach(r => { if(!groups[r.ry]) groups[r.ry] = []; groups[r.ry].push(r); });
+
+  for(const ry of Object.keys(groups).sort()){
+    const grp = groups[ry];
+    let yrTotal = 0;
+    grp.forEach(r => {
+      yrTotal += r.diff;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.label}</td><td>${SMC_LABELS[r.newLevel]}</td><td>${fmtC(r.newAmt)}</td><td>${r.priorAmt > 0 ? fmtC(r.priorAmt) : '—'}</td><td>${fmtC(r.diff)}</td>`;
+      tbody.appendChild(tr);
+    });
+    const sub = document.createElement('tr');
+    sub.className = 'yr-row';
+    sub.innerHTML = `<td colspan="4">${ry} Rate Year · ${grp.length} mo</td><td>${fmtC(yrTotal)}</td>`;
+    tbody.appendChild(sub);
+  }
+
+  document.getElementById('smcBpResults').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function exportSmcCSV(){
+  if(!smcBpRows.length) return;
+  let csv = 'Month,SMC Level,New Rate,Prior Rate,Difference\n';
+  smcBpRows.forEach(r => {
+    csv += `"${r.label}",${SMC_LABELS[r.newLevel]},${r.newAmt.toFixed(2)},${r.priorAmt.toFixed(2)},${r.diff.toFixed(2)}\n`;
+  });
+  const total = smcBpRows.reduce((s, r) => s + r.diff, 0);
+  csv += `\nTotal,,,,${total.toFixed(2)}\n`;
+  const feePct = document.getElementById('smcBpRepFee').value === 'custom' ?
+    (parseFloat(document.getElementById('smcBpCustomFee').value) || 0) :
+    parseFloat(document.getElementById('smcBpRepFee').value);
+  if(feePct > 0){
+    const repAmt = total * (feePct / 100);
+    csv += `Representative Fee (${feePct}%),,,,${repAmt.toFixed(2)}\n`;
+    csv += `Veteran Net,,,,${(total - repAmt).toFixed(2)}\n`;
+  }
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'smc-backpay-estimate.csv';
+  a.click();
+}
+
+// ═══ WHAT-IF COMPARISON ═══
+function runWhatIf(){
+  document.getElementById('wiErr').classList.add('hidden');
+  const rA = parseInt(document.getElementById('wiRateA').value);
+  const rB = parseInt(document.getElementById('wiRateB').value);
+  const effV = document.getElementById('wiEffDate').value;
+  const decV = document.getElementById('wiEndDate').value;
+  if(!effV||!decV){
+    document.getElementById('wiErr').textContent = 'Please enter start and end dates.';
+    document.getElementById('wiErr').classList.remove('hidden');
+    return;
+  }
+  const ep=effV.split('-'), dp=decV.split('-');
+  const eff = new Date(+ep[0],+ep[1]-1,+ep[2]);
+  const dec = new Date(+dp[0],+dp[1]-1,+dp[2]);
+  if(isNaN(eff.getTime())||isNaN(dec.getTime())){
+    document.getElementById('wiErr').textContent = 'Please enter valid dates.';
+    document.getElementById('wiErr').classList.remove('hidden');
+    return;
+  }
+  if(eff >= dec){
+    document.getElementById('wiErr').textContent = 'Start date must be before end date.';
+    document.getElementById('wiErr').classList.remove('hidden');
+    return;
+  }
+  const dep = getDeps();
+
+  const start = new Date(eff.getFullYear(), eff.getMonth(), 1);
+  const end = new Date(dec.getFullYear(), dec.getMonth(), 1);
+
+  function calcTotal(rating){
+    let total = 0, mo = 0, avgRate = 0;
+    let cur = new Date(start);
+    while(cur <= end){
+      const ry = clampYr(rateYr(cur.getFullYear(), cur.getMonth()));
+      const monthRate = mRate(ry, rating, dep.sp, dep.kU, dep.kS, dep.par, dep.aa);
+      total += monthRate;
+      avgRate = monthRate;
+      mo++;
+      cur.setMonth(cur.getMonth()+1);
+    }
+    return {total, mo, avgRate};
+  }
+
+  const a = calcTotal(rA);
+  const b = calcTotal(rB);
+  const bigger = b.total >= a.total ? 'B' : 'A';
+  const diff = Math.abs(b.total - a.total);
+
+  document.getElementById('wiResults').classList.remove('hidden');
+  document.getElementById('wiGrid').innerHTML = `
+    <div class="wi-col ${bigger==='A'?'highlight':''}">
+      <div class="wi-head">Scenario A: ${rA}%</div>
+      <div class="wi-body">
+        <div class="wi-amt">${fmtC(a.total)}</div>
+        ${bigger==='A'?`<div class="wi-diff">+${fmtC(diff)} more</div>`:''}
+        <div class="wi-months">${a.mo} months · ${fmtC(a.avgRate)}/mo</div>
+      </div>
+    </div>
+    <div class="wi-col ${bigger==='B'?'highlight':''}">
+      <div class="wi-head">Scenario B: ${rB}%</div>
+      <div class="wi-body">
+        <div class="wi-amt">${fmtC(b.total)}</div>
+        ${bigger==='B'?`<div class="wi-diff">+${fmtC(diff)} more</div>`:''}
+        <div class="wi-months">${b.mo} months · ${fmtC(b.avgRate)}/mo</div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══ RUN INIT (after all functions defined) ═══
+addStage();
+addCR(); addCR(); addCR();
+addSmcCond(); addSmcBump();
+</script>
+</body>
+</html>

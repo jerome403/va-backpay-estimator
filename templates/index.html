@@ -97,6 +97,106 @@
     color: #664d03;
   }
 
+  /* ═══ CLIENT PICKER BAR ═══ */
+  .client-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 10px 24px;
+  }
+  .client-bar-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .client-bar label {
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    margin: 0; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .client-bar select {
+    padding: 6px 10px;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--white);
+    min-width: 260px;
+    flex: 1 1 260px;
+    max-width: 400px;
+  }
+  .client-bar select:focus { border-color: var(--blue); outline: none; }
+  .client-bar .cb-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: var(--blue-pale);
+    color: var(--navy);
+    border-radius: 12px;
+    font-size: 12px; font-weight: 600;
+  }
+  .client-bar .cb-chip.empty {
+    background: var(--gray-100);
+    color: var(--gray-500);
+  }
+  .client-bar .cb-btn {
+    background: none;
+    border: 1px solid var(--gray-300);
+    color: var(--gray-600);
+    padding: 5px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  .client-bar .cb-btn:hover { background: var(--gray-100); border-color: var(--blue); color: var(--navy); }
+  .cb-warn {
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold-dark);
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #664d03;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    flex: 1 1 100%;
+  }
+
+  /* Save-to-folder button on result panels */
+  .save-client-btn {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font: 600 13px/1 'Source Sans 3', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .save-client-btn:hover { background: var(--navy-light); }
+  .save-client-btn:disabled { background: var(--gray-400); cursor: not-allowed; }
+  .save-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    max-width: 400px;
+    animation: slideIn 0.25s ease-out;
+  }
+  .save-toast.success { background: var(--green); }
+  .save-toast.error { background: var(--red); }
+  @keyframes slideIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
   /* ═══ TABS ═══ */
   .tab-bar {
     background: var(--white);
@@ -788,6 +888,19 @@
   </div>
 </div>
 
+<div class="client-bar">
+  <div class="client-bar-inner">
+    <label for="clientPicker">Client:</label>
+    <select id="clientPicker" onchange="onClientChange()">
+      <option value="">— Select a client —</option>
+    </select>
+    <span class="cb-chip empty" id="clientChip">No client selected</span>
+    <button class="cb-btn" onclick="refreshClients()" title="Refresh client list">&#x21bb; Refresh</button>
+    <button class="cb-btn" onclick="openClientFolder()" title="Open client's Calculations folder" id="openFolderBtn" disabled>📂 Open Folder</button>
+    <div class="cb-warn hidden" id="cbWarn"></div>
+  </div>
+</div>
+
 <nav class="tab-bar" role="tablist">
   <div class="tab-bar-inner">
     <button class="tab-btn active" data-tab="tabCalc" role="tab">Backpay Calculator</button>
@@ -922,6 +1035,7 @@
     <div class="btn-row" style="margin-bottom:12px;">
       <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Print</button>
       <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📥 Export CSV</button>
+      <button class="save-client-btn" onclick="saveReport('backpay')" id="saveBackpayBtn" disabled>💾 Save to Client Folder</button>
     </div>
   </div>
 </div>
@@ -974,6 +1088,9 @@
           </div>
         </div>
         <div class="cr-math" id="crMath"></div>
+      </div>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="save-client-btn" onclick="saveReport('combined-rating')" id="saveCombinedBtn" disabled>💾 Save to Client Folder</button>
       </div>
     </div>
   </div>
@@ -1166,6 +1283,9 @@
         </div>
         <div class="smc-path" id="smcPath"></div>
       </div>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="save-client-btn" onclick="saveReport('smc')" id="saveSmcBtn" disabled>💾 Save to Client Folder</button>
+      </div>
     </div>
   </div>
 
@@ -1283,6 +1403,7 @@
         </div>
         <div class="btn-row" style="margin-bottom:12px;">
           <button class="btn btn-secondary btn-sm" onclick="exportSmcCSV()">📥 Export CSV</button>
+          <button class="save-client-btn" onclick="saveReport('smc-backpay')" id="saveSmcBackpayBtn" disabled>💾 Save to Client Folder</button>
         </div>
       </div>
     </div>
@@ -2691,10 +2812,181 @@ function runWhatIf(){
   `;
 }
 
+// ═══ CLIENT FOLDER INTEGRATION ═══
+let currentClient = null;      // folder name
+let currentClientData = null;  // header info dict from /api/client-data
+const SAVE_BTN_IDS = ['saveBackpayBtn', 'saveCombinedBtn', 'saveSmcBtn', 'saveSmcBackpayBtn'];
+
+async function refreshClients(){
+  const picker = document.getElementById('clientPicker');
+  const warn = document.getElementById('cbWarn');
+  try {
+    const res = await fetch('/api/client-folders');
+    const data = await res.json();
+    const prev = picker.value;
+    picker.innerHTML = '<option value="">— Select a client —</option>' +
+      data.folders.map(f => `<option value="${f}">${f}</option>`).join('');
+    if(prev && data.folders.includes(prev)) picker.value = prev;
+    if(!data.exists){
+      warn.classList.remove('hidden');
+      warn.innerHTML = `<strong>Client folders not found:</strong> ${data.base}<br>Create this folder (or set CLIENT_FOLDERS_BASE env var), add client subfolders, and click Refresh.`;
+    } else if(data.folders.length === 0){
+      warn.classList.remove('hidden');
+      warn.innerHTML = `No client subfolders yet in <code>${data.base}</code>. Add a folder named for a client and click Refresh.`;
+    } else {
+      warn.classList.add('hidden');
+    }
+  } catch(e){
+    warn.classList.remove('hidden');
+    warn.innerHTML = `<strong>Could not load client list.</strong> Is the backend running? (${e.message})`;
+  }
+}
+
+async function onClientChange(){
+  const picker = document.getElementById('clientPicker');
+  const name = picker.value;
+  const chip = document.getElementById('clientChip');
+  const openBtn = document.getElementById('openFolderBtn');
+
+  if(!name){
+    currentClient = null;
+    currentClientData = null;
+    chip.textContent = 'No client selected';
+    chip.classList.add('empty');
+    openBtn.disabled = true;
+    SAVE_BTN_IDS.forEach(id => { const b = document.getElementById(id); if(b) b.disabled = true; });
+    return;
+  }
+
+  currentClient = name;
+  try {
+    const res = await fetch('/api/client-data/' + encodeURIComponent(name));
+    currentClientData = await res.json();
+  } catch(e){
+    currentClientData = { folder: name, full_name: name };
+  }
+
+  const label = currentClientData.full_name || name;
+  const fileNum = currentClientData.file_number;
+  chip.textContent = label + (fileNum ? ' · #' + fileNum : '');
+  chip.classList.remove('empty');
+  openBtn.disabled = false;
+  SAVE_BTN_IDS.forEach(id => { const b = document.getElementById(id); if(b) b.disabled = false; });
+}
+
+async function openClientFolder(){
+  if(!currentClient) return;
+  try {
+    await fetch('/api/open-folder', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({client_folder: currentClient})
+    });
+  } catch(e){ toast('Could not open folder: ' + e.message, true); }
+}
+
+function toast(msg, isError){
+  const t = document.createElement('div');
+  t.className = 'save-toast ' + (isError ? 'error' : 'success');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// Build a self-contained HTML report from a panel element
+function buildReport(title, panelEl){
+  if(!panelEl) return null;
+  const clientLine = currentClientData
+    ? `${currentClientData.full_name}${currentClientData.file_number ? ' · VA File #' + currentClientData.file_number : ''}${currentClientData.dob ? ' · DOB ' + currentClientData.dob : ''}`
+    : '(no client)';
+  const now = new Date().toLocaleString('en-US', {dateStyle:'medium', timeStyle:'short'});
+
+  // Clone the panel and strip interactive buttons
+  const clone = panelEl.cloneNode(true);
+  clone.querySelectorAll('button').forEach(b => b.remove());
+  clone.querySelectorAll('.btn-row').forEach(b => b.remove());
+
+  // Gather the live stylesheet rules from the page so the report renders standalone
+  let styleText = '';
+  try {
+    styleText = Array.from(document.styleSheets).map(ss => {
+      try { return Array.from(ss.cssRules).map(r => r.cssText).join('\n'); }
+      catch(e){ return ''; }
+    }).join('\n');
+  } catch(e){}
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${title} — ${clientLine}</title>
+<style>${styleText}
+body{padding:20px;background:#fff;}
+.report-header{border-bottom:2px solid var(--navy);margin-bottom:20px;padding-bottom:12px;}
+.report-header h1{font-family:'Merriweather',serif;font-size:22px;color:var(--navy);margin:0 0 4px;}
+.report-header .client-line{font-size:15px;color:var(--gray-700);font-weight:600;}
+.report-header .gen-line{font-size:12px;color:var(--gray-500);margin-top:4px;}
+.report-footer{margin-top:24px;padding-top:12px;border-top:1px solid var(--gray-200);font-size:11px;color:var(--gray-500);text-align:center;}
+.hidden{display:none!important;}
+</style></head><body>
+<div class="report-header">
+  <h1>${title}</h1>
+  <div class="client-line">${clientLine}</div>
+  <div class="gen-line">Generated ${now} · VA Backpay Estimator (Spearman Appeals LLC)</div>
+</div>
+${clone.outerHTML}
+<div class="report-footer">
+  <strong>Estimate only.</strong> Actual VA compensation may differ. Not a substitute for official VA calculations.
+</div>
+</body></html>`;
+}
+
+async function saveReport(type){
+  if(!currentClient){ toast('Pick a client first.', true); return; }
+
+  let title, panelEl;
+  if(type === 'backpay'){
+    title = 'Backpay Calculation';
+    panelEl = document.getElementById('printArea');
+  } else if(type === 'combined-rating'){
+    title = 'Combined Rating Calculation';
+    panelEl = document.getElementById('crResultPanel');
+  } else if(type === 'smc'){
+    title = 'SMC Determination';
+    panelEl = document.getElementById('smcResultPanel');
+  } else if(type === 'smc-backpay'){
+    title = 'SMC Backpay Calculation';
+    panelEl = document.querySelector('#smcBpResults .results-wrap');
+  }
+
+  if(!panelEl || panelEl.classList.contains('hidden')){
+    toast('Run a calculation first before saving.', true);
+    return;
+  }
+
+  const html = buildReport(title, panelEl);
+  if(!html){ toast('Could not build report.', true); return; }
+
+  try {
+    const res = await fetch('/api/save-report', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        client_folder: currentClient,
+        report_type: title,
+        html: html
+      })
+    });
+    const data = await res.json();
+    if(!res.ok){ toast(data.error || 'Save failed.', true); return; }
+    toast('✓ Saved: ' + data.filename);
+  } catch(e){
+    toast('Save failed: ' + e.message, true);
+  }
+}
+
 // ═══ RUN INIT (after all functions defined) ═══
 addStage();
 addCR(); addCR(); addCR();
 addSmcCond(); addSmcBump();
+refreshClients();
 </script>
 </body>
 </html>

@@ -68,6 +68,73 @@ Official VA compensation rates 2020–2026, effective Dec 1 of prior year throug
 - 38 CFR 3.350 (bump rules)
 - *Barry v. McDonough*, 21 Vet.App. 1 (2021)
 
+## Security
+
+The app is designed to run **local-only** and handle PII/PHI (veteran SSN, file numbers, DOB, claim records) responsibly. Threat model and mitigations below.
+
+### What the app enforces
+
+| Defense | Implementation | Blocks |
+|---|---|---|
+| Loopback-only bind | Server listens on `127.0.0.1:5001` exclusively | Network-level access from other machines |
+| Host header check | `before_request` rejects any `Host` that isn't `127.0.0.1:5001` or `localhost:5001` | DNS rebinding attacks |
+| Origin check on POSTs | `before_request` rejects cross-origin `Origin` headers | CSRF / malicious webpage POSTs |
+| Path traversal guard | `resolve_client_path()` rejects `/`, `\`, `..`, null bytes; `realpath` containment check against `CLIENT_FOLDERS_BASE` | Reading or writing files outside the client folder |
+| Forced `Calculations` subfolder | `/api/open-folder` computes the target server-side, never opens user-supplied paths | Arbitrary file open / code execution via `os.startfile` |
+| Payload size cap | 10 MB limit on report bodies | DoS via oversized POST |
+| Security headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin` | Clickjacking, MIME sniffing |
+| Waitress WSGI | Production HTTP parser when available, no debug mode possible | Header smuggling / debug-shell exploitation |
+
+### System-level security checklist (do once)
+
+Run these on every workstation that will use the app.
+
+#### Windows
+
+- [ ] **BitLocker on system drive** — run an elevated PowerShell and verify:
+  ```powershell
+  manage-bde -status C:
+  ```
+  If `Protection Status: Protection Off`, enable it via **Settings → Privacy & security → Device encryption** (Windows Home) or **Control Panel → BitLocker Drive Encryption** (Pro).
+
+- [x] **Screen lock after idle** — configured by this project's setup. Verify:
+  ```powershell
+  Get-ItemProperty 'HKCU:\Control Panel\Desktop' | Select-Object ScreenSaveActive, ScreenSaveTimeOut, ScreenSaverIsSecure
+  ```
+  Should show `1 / 600 / 1` (active, 10-min timeout, require password).
+
+- [ ] **Lock on sleep/wake** — in an elevated PowerShell:
+  ```powershell
+  powercfg /SETACVALUEINDEX SCHEME_CURRENT SUB_NONE CONSOLELOCK 1
+  powercfg /SETDCVALUEINDEX SCHEME_CURRENT SUB_NONE CONSOLELOCK 1
+  ```
+
+- [ ] **Windows Defender enabled & up-to-date** — `Get-MpComputerStatus | Select AntivirusEnabled, AntispywareEnabled, RealTimeProtectionEnabled`
+
+- [ ] **OneDrive Known Folder Move off for Downloads** (optional) — keeps downloaded PDFs local only, not auto-synced.
+
+#### Linux
+
+- [ ] **LUKS disk encryption** — usually set at install; verify with `lsblk -f` (look for `crypto_LUKS` on your root partition).
+
+- [ ] **Screen lock after idle** — GNOME: `gsettings set org.gnome.desktop.session idle-delay 600 && gsettings set org.gnome.desktop.screensaver lock-enabled true && gsettings set org.gnome.desktop.screensaver lock-delay 0`. KDE: Settings → Workspace Behavior → Screen Locking.
+
+- [ ] **Firewall allows loopback only** — `ufw status verbose` (default allow on `lo` is fine; deny incoming on everything else).
+
+### Operational hygiene
+
+- [ ] Close the browser tab when you're done with the app (don't leave it open for days).
+- [ ] Do not expose `127.0.0.1:5001` through SSH tunnels, `ngrok`, etc. unless you know why.
+- [ ] Quarterly: `pip install -U -r requirements.txt` and review the changelog for Flask/Waitress.
+- [ ] When sharing screenshots, blur client names and file numbers.
+
+### What's *not* implemented (by design, for a solo local practitioner)
+
+- **User authentication** — adds no real protection if a walk-up attacker can also read the bat file. Relies on Windows screen lock + BitLocker instead.
+- **HTTPS on localhost** — loopback traffic never touches the network card; TLS here would be decoration.
+- **Audit log** — filesystem `mtime` on `{Client}/Calculations/*.html` already records every report generated.
+- **Rate limiting** — single-user local app.
+
 ## Disclaimer
 
 This is an **estimation tool only**. Actual VA backpay amounts may differ based on individual circumstances. Consult VA at 1-800-827-1000 or an accredited VSO/attorney for official calculations. Not affiliated with the U.S. Department of Veterans Affairs.
